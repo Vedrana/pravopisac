@@ -50,9 +50,3 @@ There is no backend, account system, runtime model call, telemetry, or API key i
 the app. TypeScript checks the source data at build time; it does not validate
 external JSON. A future authoring/import pipeline needs its own runtime
 validation and content-review boundary.
-
-## Agent context
-
-Product conventions and commands for Copilot live in
-`.github/copilot-instructions.md`. Personal learning materials are not part of
-this repository.
