@@ -1,2 +1,58 @@
-# pravopisac
-Educational game to learn and practice primary school Croatian ortography.
+# Pravopisac
+
+A browser-based Croatian orthography learning app, starting with flash cards and
+eventually growing into a character-based game.
+
+**Current delivery: interface demo only.** The three cards contain clearly marked
+placeholder data, not reviewed Croatian exercises or grade-aligned learning
+content. Real content requires a chosen learner group, topic, and human review.
+
+## Run locally
+
+Use Node.js 24 (the pinned version is in `web/.node-version`) and npm.
+
+```sh
+cd web
+npm ci
+npm run dev
+```
+
+Open the local URL printed by Vite. The interface supports touch and keyboard
+input, answer feedback, a completion score, and restart. Progress is held in
+memory: refreshing the page starts a new session.
+
+## Checks
+
+Run from `web/`:
+
+```sh
+npm run lint
+npm test
+npm run build
+```
+
+The GitHub Actions workflow runs the same checks on pull requests and pushes to
+`main`. It does not deploy the app.
+
+## Architecture
+
+- `web/src/questions.ts`: checked-in demo data and its TypeScript contract.
+- `web/src/App.tsx`: React presentation and the in-memory quiz session. Feedback,
+  progress, and score are derived from the recorded answers.
+- `web/src/App.test.tsx`: interaction coverage for correct/wrong answers, locked
+  choices, progression, restart, and keyboard navigation.
+
+React and TypeScript provide a conventional component-based foundation; Vite
+produces static files in `web/dist/`. Relative asset paths allow hosting under a
+GitHub Pages project path without adding routing or a server.
+
+There is no backend, account system, runtime model call, telemetry, or API key in
+the app. TypeScript checks the source data at build time; it does not validate
+external JSON. A future authoring/import pipeline needs its own runtime
+validation and content-review boundary.
+
+## Agent context
+
+Product conventions and commands for Copilot live in
+`.github/copilot-instructions.md`. Personal learning materials are not part of
+this repository.
