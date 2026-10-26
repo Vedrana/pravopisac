@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "question": {
+    "id": "synthetic-demo-1",
+    "prompt": "U ovom probnom primjeru odaberi odgovor A.",
+    "options": ["Probni odgovor A", "Probni odgovor B"],
+    "correctIndex": 0,
+    "explanation": "Odgovor A označen je kao točan samo radi demonstracije postupka."
+  },
+  "evidence": [
+    {
+      "source_id": "demo-reference",
+      "quote": "Answer A is marked correct only to exercise the authoring pipeline.",
+      "reason": "Supports the synthetic fixture's arbitrary answer, not an orthography rule."
+    }
+  ]
+}

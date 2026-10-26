@@ -1,0 +1,7 @@
+{
+  "schema_version": 1,
+  "findings": [],
+  "uncertainties": [
+    "Synthetic data only; no educational correctness or grade alignment is established."
+  ]
+}

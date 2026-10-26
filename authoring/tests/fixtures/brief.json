@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "content_kind": "synthetic-demo",
+  "learner_group": "Synthetic test only; no learner group or school year selected",
+  "topic": "Synthetic answer selection, not Croatian orthography",
+  "learning_objective": "Exercise authoring plumbing, not educational correctness",
+  "reviewer_id": "synthetic-test-reviewer",
+  "brief_approved": true,
+  "source_sharing_approved": true,
+  "sources": [
+    {
+      "id": "demo-reference",
+      "title": "Synthetic fixture; not an orthography reference",
+      "edition": "fixture-v1",
+      "locator": "demo-line-1",
+      "excerpt": "DEMO FIXTURE: Answer A is marked correct only to exercise the authoring pipeline. This is not an orthography rule."
+    }
+  ]
+}

@@ -48,5 +48,17 @@ GitHub Pages project path without adding routing or a server.
 
 There is no backend, account system, runtime model call, telemetry, or API key in
 the app. TypeScript checks the source data at build time; it does not validate
-external JSON. A future authoring/import pipeline needs its own runtime
-validation and content-review boundary.
+external JSON.
+
+## Local question-authoring pilot
+
+[`authoring/`](authoring/README.md) is a separate Python/Pydantic tool for drafting
+one question from explicitly supplied reference excerpts. It validates structure,
+source links, exact quotations, and normalized duplicates, then makes a separate
+reference-grounded advisory critique call. Human review is recorded separately
+and bound to the exact artifact revision; neither model can approve content.
+
+The tool requires an approved learner/topic brief, reference-sharing permission,
+a reviewer, and explicit model configuration. Its checked-in fixtures are
+synthetic tests, not Croatian learning content. The pilot has no app importer or
+publisher: `web/` still uses only its three demo cards, with no runtime AI.
