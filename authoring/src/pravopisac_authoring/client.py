@@ -1,3 +1,9 @@
+"""Explicit provider boundary for the local pilot's two model calls.
+
+Transport failures stop the run without retries or provider-detail disclosure;
+response content still needs the pipeline's domain and evidence validation.
+"""
+
 import json
 import os
 from dataclasses import dataclass
@@ -13,27 +19,34 @@ from .models import ModelCall, Text
 
 
 class AuthoringError(Exception):
+    """Operator-facing workflow or provider failure handled by the CLI."""
+
     pass
 
 
 @dataclass(frozen=True)
 class Completion:
+    """Raw model text paired with requested and provider-reported call provenance."""
+
     content: str
     provenance: ModelCall
 
 
+# Provider message envelope; refusal and usable-content checks happen after parsing.
 class _Message(BaseModel):
     model_config = ConfigDict(strict=True)
     content: str | None = None
     refusal: str | None = None
 
 
+# Only a normally completed choice is acceptable; truncated/tool responses fail.
 class _Choice(BaseModel):
     model_config = ConfigDict(strict=True)
     finish_reason: Literal["stop"]
     message: _Message
 
 
+# Require one completed choice plus identifiers needed for the artifact's provenance.
 class _Response(BaseModel):
     model_config = ConfigDict(strict=True)
     id: Text
@@ -42,7 +55,10 @@ class _Response(BaseModel):
 
 
 class _NoRedirects(HTTPRedirectHandler):
+    """Prevent forwarding an authenticated request to a redirect destination."""
+
     def redirect_request(self, req, fp, code, msg, headers, newurl):
+        """Decline redirects so urllib surfaces them as HTTP failures."""
         return None
 
 
@@ -52,6 +68,7 @@ class ChatClient:
     def __init__(
         self, endpoint: str, api_key: str, generator_model: str, critic_model: str
     ):
+        """Validate explicit HTTPS settings and disable redirects before any call."""
         parsed = urlsplit(endpoint)
         if (
             parsed.scheme != "https"
@@ -74,6 +91,7 @@ class ChatClient:
 
     @classmethod
     def from_env(cls) -> "ChatClient":
+        """Require all four provider settings, without defaults or secret logging."""
         names = (
             "PRAVOPISAC_API_URL",
             "PRAVOPISAC_API_KEY",
@@ -87,6 +105,12 @@ class ChatClient:
         return cls(*values)
 
     def complete(self, *, model: str, system: str, user: str) -> Completion:
+        """Send one JSON-object request with a 60-second timeout and no retry.
+
+        Transport errors, refusals, and empty content raise AuthoringError;
+        malformed or incomplete response envelopes raise Pydantic validation errors.
+        Domain JSON validation belongs to the pipeline, not this transport.
+        """
         payload = {
             "model": model,
             "messages": [

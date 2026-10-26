@@ -1,3 +1,9 @@
+"""Local file/CLI boundary for drafting, recording review, and verifying approval.
+
+Validate inputs and output paths before configuring a provider. Review commands
+make no model calls, and no command imports or publishes browser content.
+"""
+
 import argparse
 import sys
 from pathlib import Path
@@ -13,10 +19,12 @@ T = TypeVar("T", bound=Document)
 
 
 def read_document(path: Path, model: type[T]) -> T:
+    """Load UTF-8 JSON through its strict contract, including contextual validators."""
     return model.model_validate_json(path.read_text(encoding="utf-8"))
 
 
 def check_output(path: Path) -> None:
+    """Reject occupied paths, including symlinks, or missing parent directories."""
     if path.exists() or path.is_symlink():
         raise AuthoringError(f"Refusing to overwrite existing output: {path}")
     if not path.parent.is_dir():
@@ -24,11 +32,13 @@ def check_output(path: Path) -> None:
 
 
 def write_document(path: Path, document: Document) -> None:
+    """Exclusively create readable, aliased JSON; never overwrite an existing file."""
     with path.open("x", encoding="utf-8") as output:
         output.write(document.model_dump_json(indent=2, by_alias=True) + "\n")
 
 
 def make_parser() -> argparse.ArgumentParser:
+    """Define draft, review, and verify commands; review requires human attestation."""
     parser = argparse.ArgumentParser(description="Local, unreviewed question authoring")
     commands = parser.add_subparsers(dest="command", required=True)
     draft = commands.add_parser("draft", help="Make one draft and one advisory critique")
@@ -54,6 +64,11 @@ def make_parser() -> argparse.ArgumentParser:
 
 
 def main(argv: list[str] | None = None) -> int:
+    """Dispatch the workflow and return 0 on success or 1 for handled failures.
+
+    Invalid command syntax exits through argparse. Validation errors omit input
+    values; failed model/validation stages never write a successful artifact.
+    """
     args = make_parser().parse_args(argv)
     try:
         if args.command == "draft":

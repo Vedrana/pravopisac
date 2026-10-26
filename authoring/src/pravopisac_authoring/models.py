@@ -1,3 +1,9 @@
+"""Strict authoring contracts and deterministic checks, not linguistic proof.
+
+Source IDs and exact quotes establish presence, not authority or answer support.
+Human-review attestations remain separate from unreviewed model output.
+"""
+
 import unicodedata
 from typing import Annotated, Literal
 
@@ -17,14 +23,18 @@ SchemaVersion = Annotated[int, Field(strict=True, ge=1, le=1)]
 ReviewDecision = Literal["approved", "rejected", "changes_requested"]
 
 
+# Model purposes use comments because Pydantic adds class docstrings to prompt schemas.
+# Shared strict, frozen contract that rejects unknown fields.
 class Document(BaseModel):
     model_config = ConfigDict(extra="forbid", strict=True, frozen=True)
 
 
 def normalized(text: str) -> str:
+    """Normalize compatibility characters, case, and whitespace for comparisons."""
     return " ".join(unicodedata.normalize("NFKC", text).casefold().split())
 
 
+# Browser-compatible two-choice fields, without approval or grade metadata.
 class Question(Document):
     id: Text
     prompt: Text
@@ -34,14 +44,17 @@ class Question(Document):
 
     @model_validator(mode="after")
     def distinct_options(self) -> "Question":
+        """Reject choices that differ only in normalized spelling or spacing."""
         if normalized(self.options[0]) == normalized(self.options[1]):
             raise ValueError("Answer options must be distinct after normalization.")
         return self
 
     def fingerprint(self) -> tuple[str, tuple[str, ...]]:
+        """Compare normalized prompt/options, ignoring option order and explanation."""
         return normalized(self.prompt), tuple(sorted(map(normalized, self.options)))
 
 
+# Operator-supplied reference metadata and an excerpt, not a retrieved authority.
 class Reference(Document):
     id: Text
     title: Text
@@ -50,6 +63,7 @@ class Reference(Document):
     excerpt: Text
 
 
+# Agreed educational context and explicit permission to share its supplied sources.
 class Brief(Document):
     schema_version: SchemaVersion
     content_kind: Literal["synthetic-demo", "educational-draft"]
@@ -64,47 +78,55 @@ class Brief(Document):
     @field_validator("brief_approved", "source_sharing_approved")
     @classmethod
     def require_explicit_permission(cls, value: bool) -> bool:
+        """Require operator consent flags, not human approval of a question."""
         if not value:
             raise ValueError("Explicit approval is required before a model call.")
         return value
 
     @model_validator(mode="after")
     def unique_sources(self) -> "Brief":
+        """Reject ambiguous source IDs before evidence can refer to them."""
         ids = [source.id for source in self.sources]
         if len(ids) != len(set(ids)):
             raise ValueError("Reference IDs must be unique.")
         return self
 
 
+# A claimed source quote and rationale; contextual checks verify only its presence.
 class Evidence(Document):
     source_id: Text
     quote: Text
     reason: Text
 
 
+# Unreviewed model-authored question and evidence, with no model approval field.
 class Draft(Document):
     schema_version: SchemaVersion
     question: Question
     evidence: Annotated[tuple[Evidence, ...], Field(min_length=1)]
 
 
+# Advisory critic concern with citations for later human judgment.
 class Finding(Document):
     concern: Text
     evidence: Annotated[tuple[Evidence, ...], Field(min_length=1)]
 
 
+# Advisory findings and uncited uncertainties, never a correctness certificate.
 class Critique(Document):
     schema_version: SchemaVersion
     findings: tuple[Finding, ...]
     uncertainties: tuple[Text, ...]
 
 
+# Explicit local duplicate-check scope; an empty set provides no coverage.
 class Comparison(Document):
     schema_version: SchemaVersion
     questions: tuple[Question, ...]
 
     @model_validator(mode="after")
     def unique_questions(self) -> "Comparison":
+        """Reject repeated IDs or normalized prompt/options within the input set."""
         seen_ids: set[str] = set()
         seen_questions: set[tuple[str, tuple[str, ...]]] = set()
         for question in self.questions:
@@ -116,6 +138,10 @@ class Comparison(Document):
 
 
 def check_evidence(evidence: tuple[Evidence, ...], brief: Brief) -> None:
+    """Raise ValueError for unknown sources or quotes absent from their excerpts.
+
+    Exact substring presence does not prove that a quote supports the answer.
+    """
     sources = {source.id: source for source in brief.sources}
     for item in evidence:
         source = sources.get(item.source_id)
@@ -128,6 +154,7 @@ def check_evidence(evidence: tuple[Evidence, ...], brief: Brief) -> None:
 
 
 def check_duplicate(question: Question, comparison: Comparison) -> None:
+    """Reject ID or normalized prompt/options matches in this set, not semantic twins."""
     for existing in comparison.questions:
         if question.id == existing.id:
             raise ValueError("Question ID already exists in the comparison set.")
@@ -135,12 +162,14 @@ def check_duplicate(question: Question, comparison: Comparison) -> None:
             raise ValueError("Normalized question already exists in the comparison set.")
 
 
+# Requested and provider-reported model/response identifiers, not independent proof.
 class ModelCall(Document):
     requested_model: Text
     returned_model: Text
     response_id: Text
 
 
+# Full unreviewed run context, checks, advisory critique, and both calls' provenance.
 class Artifact(Document):
     schema_version: SchemaVersion
     state: Literal["unreviewed"]
@@ -161,6 +190,7 @@ class Artifact(Document):
 
     @model_validator(mode="after")
     def validate_context(self) -> "Artifact":
+        """Recheck draft/critic evidence and duplicates on creation or file loading."""
         check_evidence(self.draft.evidence, self.brief)
         check_duplicate(self.draft.question, self.comparison)
         for finding in self.critique.findings:
@@ -168,6 +198,7 @@ class Artifact(Document):
         return self
 
 
+# Separate operator-attested decision bound to a full artifact digest, not identity.
 class HumanReview(Document):
     schema_version: SchemaVersion
     artifact_sha256: Digest
@@ -180,6 +211,7 @@ class HumanReview(Document):
     @field_validator("human_reviewed")
     @classmethod
     def require_human_attestation(cls, value: bool) -> bool:
+        """Require an explicit human-review claim without authenticating its author."""
         if not value:
             raise ValueError("A human must explicitly attest to this review.")
         return value

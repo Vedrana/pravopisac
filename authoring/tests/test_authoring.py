@@ -1,3 +1,9 @@
+"""Offline synthetic checks for contracts, bounded calls, and review separation.
+
+Provider responses are stubbed or mocked. Automated attestations exercise record
+consistency only; they are not real human approvals or reviewed Croatian content.
+"""
+
 import io
 import json
 import tempfile
@@ -32,18 +38,23 @@ FIXTURES = Path(__file__).parent / "fixtures"
 
 
 def fixture(name):
+    """Read a synthetic JSON example without treating it as educational evidence."""
     return json.loads((FIXTURES / f"{name}.json").read_text(encoding="utf-8"))
 
 
 def parse(model, data):
+    """Exercise the same JSON validation path used for files and model responses."""
     return model.model_validate_json(json.dumps(data))
 
 
 class StubClient:
+    """Queue synthetic completions and capture prompts without network requests."""
+
     generator_model = "synthetic-generator"
     critic_model = "synthetic-critic"
 
     def __init__(self, responses=None):
+        """Default to one draft and one critique, or use supplied failure cases."""
         self.responses = (
             [json.dumps(fixture("draft")), json.dumps(fixture("critique"))]
             if responses is None else responses
@@ -51,6 +62,7 @@ class StubClient:
         self.calls = []
 
     def complete(self, *, model, system, user):
+        """Capture one call and return its queued text with synthetic provenance."""
         self.calls.append({"model": model, "system": system, "user": user})
         return Completion(
             content=self.responses[len(self.calls) - 1],
@@ -63,6 +75,7 @@ class StubClient:
 
 
 def artifact(client=None, comparison=None):
+    """Build an unreviewed synthetic run with optional client/comparison overrides."""
     return run_pilot(
         parse(Brief, fixture("brief")),
         parse(Comparison, fixture("comparison")) if comparison is None else comparison,
@@ -71,6 +84,8 @@ def artifact(client=None, comparison=None):
 
 
 class ContractTests(unittest.TestCase):
+    """Check strict shapes, explicit permissions, and rejection of approval claims."""
+
     def test_every_document_requires_exact_integer_schema_version_one(self):
         result = artifact()
         review = record_review(
@@ -163,6 +178,8 @@ class ContractTests(unittest.TestCase):
 
 
 class PipelineTests(unittest.TestCase):
+    """Check call bounds, context sharing, provenance, and evidence/duplicate gates."""
+
     def test_two_bounded_calls_with_actual_evidence_and_provenance(self):
         client = StubClient()
         result = artifact(client)
@@ -266,6 +283,8 @@ class PipelineTests(unittest.TestCase):
 
 
 class ReviewTests(unittest.TestCase):
+    """Check separate attestations, full-revision binding, and approval rejection."""
+
     def setUp(self):
         self.artifact = artifact()
 
@@ -330,6 +349,8 @@ class ReviewTests(unittest.TestCase):
 
 
 class CliTests(unittest.TestCase):
+    """Exercise local-file flows, preflight failures, and explicit review arguments."""
+
     def invoke(self, args):
         stdout, stderr = io.StringIO(), io.StringIO()
         with redirect_stdout(stdout), redirect_stderr(stderr):
@@ -432,6 +453,8 @@ class CliTests(unittest.TestCase):
 
 
 class ClientTests(unittest.TestCase):
+    """Check provider request/response boundaries and safe, non-retrying failures."""
+
     def client(self):
         client = ChatClient(
             "https://models.example.invalid/v1/chat/completions",

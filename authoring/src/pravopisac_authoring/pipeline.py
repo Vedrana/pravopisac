@@ -1,3 +1,9 @@
+"""Bounded drafting and advisory critique, followed by separate human review.
+
+Local checks gate model output, not linguistic truth. Review records bind an
+operator's attested decision to the full artifact without changing or publishing it.
+"""
+
 import hashlib
 import json
 from datetime import datetime, timezone
@@ -19,13 +25,22 @@ from .models import (
 
 
 class ModelClient(Protocol):
+    """Minimal model-call boundary shared by the HTTPS client and offline stubs."""
+
     generator_model: str
     critic_model: str
 
-    def complete(self, *, model: str, system: str, user: str) -> Completion: ...
+    def complete(self, *, model: str, system: str, user: str) -> Completion:
+        """Return raw response text with provenance or propagate a call failure."""
+        ...
 
 
 def digest(document: Document) -> str:
+    """Return SHA-256 of the full document as sorted, compact UTF-8 JSON with aliases.
+
+    File whitespace and key order do not matter; all serialized values do,
+    including an artifact's sources, comparison, critique, timestamps, and provenance.
+    """
     canonical = json.dumps(
         document.model_dump(mode="json", by_alias=True),
         sort_keys=True,
@@ -36,6 +51,13 @@ def digest(document: Document) -> str:
 
 
 def run_pilot(brief: Brief, comparison: Comparison, client: ModelClient) -> Artifact:
+    """Make at most one draft call and one advisory critique call, without revision.
+
+    Send educational context and approved excerpts, not reviewer IDs or the
+    comparison set; instruct models to treat sources/drafts as data. Invalid
+    draft structure, evidence, or duplicates stop before critique. Artifact
+    validation checks critic evidence; errors propagate and no approval is made.
+    """
     context = brief.model_dump(
         mode="json",
         exclude={
@@ -109,6 +131,12 @@ def record_review(
     note: str,
     human_reviewed: bool,
 ) -> HumanReview:
+    """Record an attested human decision separately, bound to the full artifact.
+
+    Require the brief's reviewer ID and explicit attestation, without proving
+    identity or correctness. Rejection and requested changes are valid decisions;
+    the original artifact remains unreviewed.
+    """
     if reviewer_id != artifact.brief.reviewer_id:
         raise AuthoringError("Reviewer ID does not match the agreed brief.")
     return HumanReview(
@@ -123,6 +151,11 @@ def record_review(
 
 
 def verify_review(artifact: Artifact, review: HumanReview) -> None:
+    """Require matching digest, agreed reviewer ID, and an approved human decision.
+
+    Raise AuthoringError for stale or non-approved reviews. Success checks local
+    record consistency, not identity or linguistic truth, and exports nothing.
+    """
     if review.artifact_sha256 != digest(artifact):
         raise AuthoringError("Human review is stale: the artifact revision changed.")
     if review.reviewer_id != artifact.brief.reviewer_id:
