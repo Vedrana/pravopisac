@@ -1,148 +1,94 @@
-# Local authoring pilot
+# One-script question drafting
 
-This Python/Pydantic command-line tool drafts **one unreviewed question**, checks
-it, and requests a separate, advisory AI critique using the actual supplied
-reference excerpts. It is an ordinary controlled program: no autonomous agents,
-source retrieval, automatic revisions, or browser integration.
+`draft_question.py` reads a brief and references, calls one configured AI model,
+checks the question format, and saves a readable Markdown draft for human review.
+The whole workflow is in that file, with comments explaining each meaningful part.
 
-The generator must aim for correctness and the agreed learning objective. Local
-checks establish structure, source IDs, exact quotation presence, and normalized
-duplicates, **not linguistic correctness or grade alignment**. A quiet critic is
-not proof of correctness; its objections may also be wrong.
+There is no AI critic, approval command, review database, revision hash, comparison
+collection, or run-tracking system. Humans review and correct the content in a
+pull request. The script never approves questions or imports them into `web/`.
 
-## Setup and checks
+## Setup
 
 Use Python 3.11 or newer; CI uses Python 3.13. From the repository root:
 
 ```sh
 python3 -m venv .local-tools/authoring-venv
-.local-tools/authoring-venv/bin/python -m pip install -e ./authoring
-.local-tools/authoring-venv/bin/python -m unittest discover -s authoring/tests -v
+.local-tools/authoring-venv/bin/python -m pip install -r authoring/requirements.txt
 ```
 
-Tests use synthetic fixtures and stubbed model responses, with no credentials or
-external requests. They exercise the complete draft/critique/review path, including
-rejection and stale approval. Automated review records in tests are not actual
-human approvals.
+Pydantic is the only dependency. It checks JSON field types and required values;
+it is not an AI model.
 
-## Required inputs
+## Inputs and model
 
-Keep local inputs and outputs under the ignored `.authoring/` directory. Do not
-commit credentials, private material, unreviewed drafts, or personal learning
-plans. The small JSON files in `tests/fixtures/` illustrate the data shapes only;
-they are explicitly synthetic and are not suitable educational references.
+Prepare two UTF-8 text files under the ignored `.authoring/` directory:
 
-Before a real run, agree:
+- `brief.txt`: the agreed learner group, topic, learning objective, and instructions.
+- `references.txt`: approved reference excerpts, with titles, editions, and locations
+  so the human reviewer can verify the draft against the originals.
 
-- `learner_group`, `topic`, and `learning_objective`: the actual educational brief.
-- `reviewer_id`: the human linguistic reviewer who will inspect the result.
-- `sources`: approved excerpts, each with a unique `id`, `title`, `edition`,
-  `locator`, and `excerpt`. Confirm these are suitable authoritative references
-  and that sending the supplied text to the chosen provider is permitted.
+The script requires nonempty files, but does not judge whether the brief is
+educationally appropriate or the references authoritative. Agree those choices
+before generating real content. Only send material you are permitted to share
+with the selected provider.
 
-The brief uses `schema_version: 1` and `content_kind: "educational-draft"` for real
-drafts, or `"synthetic-demo"` for plumbing tests. `brief_approved: true` and
-`source_sharing_approved: true` are required explicit operator attestations,
-**not question approvals**. The tool does not choose a school year or approve
-references on the user's behalf.
+Configure these environment variables through your local credential-management
+process; never put credentials in the repository or command arguments:
 
-Every document requires integer `schema_version: 1`; booleans, strings, and
-floating-point versions such as `1.0` are rejected rather than coerced.
-
-The required comparison file has `schema_version: 1` and a `questions` array
-using the existing browser fields: `id`, `prompt`, exactly two `options`,
-`correctIndex` (integer 0 or 1), and `explanation`. An explicitly empty array is
-allowed for the first pilot; it means there is no comparison coverage, not that
-the question is globally unique. The tool rejects repeated IDs and normalized
-prompt/options matches, including reordered options. It does not perform semantic
-deduplication.
-
-## Draft and critique
-
-Choose an HTTPS provider endpoint implementing the Chat Completions JSON-object
-response format. Set these environment variables through your local credential
-management process:
-
-| Variable | Required value |
+| Variable | Value |
 | --- | --- |
-| `PRAVOPISAC_API_URL` | Full HTTPS Chat Completions URL, without query, fragment, or embedded credentials |
-| `PRAVOPISAC_API_KEY` | Provider credential; never a command-line argument or checked-in file |
-| `PRAVOPISAC_GENERATOR_MODEL` | Explicit drafting model name |
-| `PRAVOPISAC_CRITIC_MODEL` | Explicit critic model name; may be the same model |
+| `PRAVOPISAC_API_URL` | Full HTTPS Chat Completions endpoint supporting JSON-object responses |
+| `PRAVOPISAC_API_KEY` | Provider credential |
+| `PRAVOPISAC_MODEL` | The single model to use |
 
-No provider, model, or credential is selected automatically. The tool sends only
-the brief's educational context and approved sources to the generator, then that
-context and draft to the critic. It does not send the reviewer ID or comparison
-collection. Requests have a 60-second timeout, do not follow redirects, and are
-not automatically retried.
+No provider or model is selected automatically. URLs with embedded credentials,
+queries, or fragments are rejected. Both input texts are sent in one request,
+with a 60-second timeout, no redirects, and no automatic retries.
+
+## Run and review
 
 ```sh
 mkdir -p .authoring
-.local-tools/authoring-venv/bin/python -m pravopisac_authoring draft \
-  --brief .authoring/brief.json \
-  --comparison .authoring/comparison.json \
-  --output .authoring/run.json
+.local-tools/authoring-venv/bin/python authoring/draft_question.py \
+  --brief .authoring/brief.txt \
+  --references .authoring/references.txt \
+  --output .authoring/draft.md \
+  --allow-reference-sharing
 ```
 
-There is at most one drafting call and one critique call per invocation. Invalid
-drafts stop before critique. Malformed responses, unknown sources, fabricated
-quotes, duplicate questions, refusals, and provider failures exit nonzero; no
-successful artifact is emitted. Existing output files are never overwritten.
+The explicit sharing flag confirms that both files may go to the provider.
+The model returns the five existing question fields: `id`, `prompt`, two
+`options`, `correctIndex` (integer 0 or 1), and `explanation`. The script rejects
+missing/blank fields, invalid answer indexes, indistinguishable options, and
+unexpected fields such as a model-generated approval.
 
-An artifact contains the brief and source excerpts, comparison set, draft and
-quoted evidence, deterministic check results, advisory findings/uncertainties,
-prompt version, timestamp, and requested/returned model names and response IDs.
-It remains `unreviewed`, even when a separate human review is later recorded.
-These files may contain reference material: treat them according to its license
-and privacy requirements.
+The output contains the proposed question and answer, explanation, original brief,
+and supplied references together. Format checks do **not** prove correctness,
+source support, uniqueness, or grade alignment. These are human review tasks.
+Provider errors, refusals, malformed responses, or invalid questions exit nonzero
+without saving a draft. Existing output files are never overwritten.
 
-## Mandatory human review
+A human linguistic reviewer must check both options, the explanation, source
+support, learner suitability, and duplicates. Discuss and correct the proposed
+content through a pull request, and approve only the final reviewed version.
+Edits need review again. Do not publish unreviewed content or reference material
+you cannot redistribute. The scratch draft itself stays local; when proposing
+content in Git, include only shareable material needed for review.
 
-The reviewer must inspect the actual sources, answer correctness, ambiguity of
-both choices, explanation, learning objective, learner suitability, and critic
-findings. A valid source ID or matching quote does not establish that the quote
-supports the answer. Unsupported pedagogical concerns can appear as critic
-uncertainties rather than cited findings.
+There is still no app importer or publisher. The browser app keeps its synthetic
+demo cards and makes no model calls.
 
-Only **after actual human review**, record a decision in a separate file:
+## Checks and the previous interface
 
 ```sh
-.local-tools/authoring-venv/bin/python -m pravopisac_authoring review \
-  --artifact .authoring/run.json \
-  --reviewer "<reviewer-id-from-brief>" \
-  --decision approved \
-  --note "<human review reasoning, including disposition of critic concerns>" \
-  --human-reviewed \
-  --output .authoring/review.json
+.local-tools/authoring-venv/bin/python -m unittest discover -s authoring/tests -v
 ```
 
-Use `rejected` or `changes_requested` instead of `approved` when appropriate.
-An unresolved or rejected pilot is a valid result. The tool does not edit or
-automatically regenerate the question; a later attempt uses a new output file.
+Tests use explicitly synthetic fixtures and mocked HTTP responses, without live
+model calls or credentials. They do not establish educational correctness.
 
-```sh
-.local-tools/authoring-venv/bin/python -m pravopisac_authoring verify-review \
-  --artifact .authoring/run.json \
-  --review .authoring/review.json
-```
-
-Verification requires an approved decision by the brief's reviewer and a SHA-256
-digest matching the entire canonical artifact, including its exact question,
-sources, critique, and comparison context. Changed content requires fresh human
-review; JSON whitespace/key ordering alone does not invalidate the digest.
-Neither generation nor critique accepts a model-supplied approval field.
-
-This is a trusted local workflow, not an authentication system: the flag and
-reviewer ID record an operator's human-review attestation. They cannot prove a
-person's identity, prevent deliberate local-file forgery, or establish correctness.
-Do not automate the approval command as part of generation.
-
-## Later direction, not part of this pilot
-
-Evaluate the pilot with the reviewer before agreeing a collection size. The
-intended path is LLM/agent-assisted drafts, deterministic checks, evidence-grounded
-AI critique, **human review of every question**, and approved-only versioned data.
-A future export/import gate must exclude pending, rejected, or stale approvals.
-There is no exporter, app importer, review UI, deployment, or automatic revision
-loop here. The static browser app continues using its synthetic demo cards and
-never makes model requests.
+The previous packaged CLI and its `draft`, `review`, and `verify-review` commands
+have been removed. Use this script and `PRAVOPISAC_MODEL` instead of the former
+generator/critic model settings. Old artifact and approval JSON files are not
+inputs to this workflow; human review now belongs in the pull request.

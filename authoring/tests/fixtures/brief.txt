@@ -1,0 +1,4 @@
+SYNTHETIC DEMO ONLY: exercise the drafting script, not educational correctness.
+Learner group: none selected; not aligned to a school year.
+Topic: arbitrary answer selection, not Croatian orthography.
+Goal: draft one explicitly marked demo question where answer A is selected.

@@ -52,13 +52,15 @@ external JSON.
 
 ## Local question-authoring pilot
 
-[`authoring/`](authoring/README.md) is a separate Python/Pydantic tool for drafting
-one question from explicitly supplied reference excerpts. It validates structure,
-source links, exact quotations, and normalized duplicates, then makes a separate
-reference-grounded advisory critique call. Human review is recorded separately
-and bound to the exact artifact revision; neither model can approve content.
+[`authoring/draft_question.py`](authoring/draft_question.py) is one separate Python script:
+read a brief and reference excerpts, call one configured model, check the question
+format, and save a readable draft with its inputs. Human linguistic review and
+approval happen through an ordinary pull request, not an AI critic or approval
+subsystem.
 
-The tool requires an approved learner/topic brief, reference-sharing permission,
-a reviewer, and explicit model configuration. Its checked-in fixtures are
-synthetic tests, not Croatian learning content. The pilot has no app importer or
-publisher: `web/` still uses only its three demo cards, with no runtime AI.
+Format checks do not prove correctness or source support. The learner group,
+topic, references, and permission to share the input texts must be agreed before
+real generation. Checked-in fixtures are synthetic tests, not learning content.
+There is no app importer or publisher: `web/` still uses only its three demo
+cards, with no runtime AI. See the [authoring guide](authoring/README.md) for setup
+and usage.
