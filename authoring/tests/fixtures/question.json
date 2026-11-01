@@ -1,0 +1,7 @@
+{
+  "id": "synthetic-demo-1",
+  "prompt": "U ovom probnom primjeru odaberi odgovor A.",
+  "options": ["Probni odgovor A", "Probni odgovor B"],
+  "correctIndex": 0,
+  "explanation": "Odgovor A označen je kao točan samo radi demonstracije postupka."
+}
