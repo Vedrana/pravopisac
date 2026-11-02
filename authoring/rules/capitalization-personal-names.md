@@ -1,6 +1,7 @@
 # Veliko početno slovo u jednorječnim osobnim imenima i prezimenima
 
-Unreviewed rule brief. Human linguistic review is required before generation.
+Reviewed and approved by a human.
+Approval recorded in [pull request #4](https://github.com/Vedrana/pravopisac/pull/4#discussion_r4443335905).
 
 ## Rule
 

@@ -4,8 +4,9 @@ Store reusable, original descriptions of orthography rules here, with their
 source references in the same Markdown file. Keep them separate from a
 learner-specific brief and from generated questions.
 
-**There are no reviewed rule briefs in this directory yet.** This document
-defines their format, not reviewed educational content.
+[`capitalization-personal-names.md`](capitalization-personal-names.md) is the
+first human-reviewed and approved rule brief. This README defines the shared
+format and review process.
 
 ## One file per rule
 
