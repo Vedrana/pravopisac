@@ -11,9 +11,13 @@ pull request. The script never approves questions or imports them into `web/`.
 ## Persisted rule briefs
 
 [`rules/`](rules/README.md) defines the format for reusable, original rule
-descriptions stored with their source URLs and section references. There are no
-reviewed rule briefs yet. They need human review before generation, and the
-script's excerpt-based instructions still need adapting to rule-brief input.
+descriptions stored with their source URLs and section references. A rule starts
+as an unreviewed draft. Corrections are made in that same file; after human
+approval is recorded in pull request review, remove its "Unreviewed rule brief"
+notice. That file now holds the final reviewed rule, not a separate approved copy.
+
+There are no reviewed rule briefs yet. The script's excerpt-based instructions
+still need adapting before these reviewed rules can be used for generation.
 
 ## Setup
 

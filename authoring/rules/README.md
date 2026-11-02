@@ -14,7 +14,9 @@ Use a descriptive kebab-case filename. Its basename is the stable rule ID:
 Do not reuse an ID for a different rule. Git preserves revisions; cite the rule
 ID and the Git commit when reviewing questions generated from it.
 
-Each rule file must follow this structure:
+Each rule file starts with this draft structure. After human review and approval,
+remove the "Unreviewed rule brief" notice below. The same file then holds the
+final reviewed rule; do not create a separate approved copy.
 
 ```markdown
 # Rule title
@@ -51,10 +53,16 @@ A human linguistic reviewer must compare the original description with the
 cited sources, checking meaning, conditions, exceptions, and omissions. An
 intentional scope limit must not turn into a misleading general rule.
 
-Keep draft briefs explicitly unreviewed. Approval belongs in pull request
-review of the final version; a file's existence or removal of its draft notice
-does not establish approval. Changes need fresh review before generation.
-Generated questions require their own human review against the rule and source.
+Make review corrections directly in the rule file. Keep its "Unreviewed rule
+brief" notice until human approval is recorded in pull request review, then
+remove the notice. The final paraphrased rule remains in the same file's
+`## Rule` section, with the original source reference in `## Sources`.
+
+The approved version can be used as input to question generation once the
+script supports rule briefs. Removing the notice alone does not establish
+approval. If the rule changes later, restore the notice and obtain fresh review
+before using the changed version. Generated questions require their own human
+review against the rule and source.
 
 Write original descriptions of the underlying rules, not copied or closely
 paraphrased handbook prose. Rephrasing alone does not establish permission to
