@@ -8,6 +8,13 @@ There is no AI critic, approval command, review database, revision hash, compari
 collection, or run-tracking system. Humans review and correct the content in a
 pull request. The script never approves questions or imports them into `web/`.
 
+## Persisted rule briefs
+
+[`rules/`](rules/README.md) defines the format for reusable, original rule
+descriptions stored with their source URLs and section references. There are no
+reviewed rule briefs yet. They need human review before generation, and the
+script's excerpt-based instructions still need adapting to rule-brief input.
+
 ## Setup
 
 Use Python 3.11 or newer; CI uses Python 3.13. From the repository root:
