@@ -1,4 +1,0 @@
-SYNTHETIC REFERENCE FIXTURE; NOT AN ORTHOGRAPHY AUTHORITY
-Edition: fixture-v1. Location: demo-line-1.
-Answer A is marked correct only to exercise the drafting script.
-This is not an orthography rule and must not be used as learning content.

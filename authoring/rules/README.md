@@ -59,17 +59,19 @@ brief" notice until human approval is recorded in pull request review, then
 remove the notice. The final paraphrased rule remains in the same file's
 `## Rule` section, with the original source reference in `## Sources`.
 
-The approved version can be used as input to question generation once the
-script supports rule briefs. Removing the notice alone does not establish
-approval. If the rule changes later, restore the notice and obtain fresh review
-before using the changed version. Generated questions require their own human
-review against the rule and source.
+Use the approved version as input to question generation with
+`draft_question.py --rule path/to/rule.md` (alongside the learning brief, output
+path, and sharing confirmation described in the [authoring guide](../README.md)).
+Removing the notice alone does not establish approval. If the rule changes later,
+restore the notice and obtain fresh review before using the changed version.
+Generated questions require their own human review against the rule and source.
 
 Write original descriptions of the underlying rules, not copied or closely
 paraphrased handbook prose. Rephrasing alone does not establish permission to
 reuse source material. Store and send only material whose use is permitted.
 
-The existing script can read Markdown as UTF-8 text through `--references`,
-but its model instructions currently expect reference excerpts. Adapting those
-instructions to these rule briefs is a separate step. This directory adds no
-automatic source fetching, generation, approval, or app publication.
+The script sends the full supplied rule brief to the configured model and
+includes it in the question draft. It instructs the model to stay within the
+rule's scope and not infer additional rules or fetch linked sources. The script
+does not verify approval or linguistic correctness, fetch sources, or publish
+questions to the app.
