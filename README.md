@@ -53,14 +53,14 @@ external JSON.
 ## Local question-authoring pilot
 
 [`authoring/draft_question.py`](authoring/draft_question.py) is one separate Python script:
-read a brief and reference excerpts, call one configured model, check the question
-format, and save a readable draft with its inputs. Human linguistic review and
-approval happen through an ordinary pull request, not an AI critic or approval
-subsystem.
+read a learning brief and a human-reviewed rule brief, call one configured model,
+check the question format, and save a readable draft with its inputs. Human
+linguistic review and approval happen through an ordinary pull request, not an
+AI critic or approval subsystem.
 
 Format checks do not prove correctness or source support. The learner group,
-topic, references, and permission to share the input texts must be agreed before
-real generation. Checked-in fixtures are synthetic tests, not learning content.
+topic, reviewed rule, and permission to share the input texts must be agreed
+before real generation. Checked-in fixtures are synthetic tests, not learning content.
 There is no app importer or publisher: `web/` still uses only its three demo
 cards, with no runtime AI. See the [authoring guide](authoring/README.md) for setup
 and usage.
