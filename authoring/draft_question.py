@@ -1,4 +1,4 @@
-"""Draft one question: read inputs, call one model, check its format, save Markdown.
+"""Draft one question: read inputs, run Copilot CLI, check format, save Markdown.
 
 Read this file top to bottom for the whole workflow. Pydantic checks the question's
 shape, not its linguistic correctness. A human reviews the saved question and
@@ -8,14 +8,12 @@ rule brief in a pull request; this script never approves or publishes content.
 import argparse
 import json
 import os
+import subprocess
 import sys
 import unicodedata
-from http.client import HTTPException
 from pathlib import Path
+from tempfile import TemporaryDirectory
 from typing import Annotated
-from urllib.error import HTTPError, URLError
-from urllib.parse import urlsplit
-from urllib.request import HTTPRedirectHandler, Request, build_opener
 
 from pydantic import (
     BaseModel,
@@ -46,22 +44,14 @@ class Question(BaseModel):
 
     @model_validator(mode="after")
     def distinct_options(self) -> "Question":
-        """Reject choices that differ only by case, spacing, or Unicode variants."""
+        """Ignore spacing and Unicode variants, but preserve capitalization."""
         options = [
-            " ".join(unicodedata.normalize("NFKC", text).casefold().split())
+            " ".join(unicodedata.normalize("NFKC", text).split())
             for text in self.options
         ]
         if options[0] == options[1]:
             raise ValueError("Answer options must be distinct.")
         return self
-
-
-class NoRedirects(HTTPRedirectHandler):
-    """Keep the provider credential from being forwarded to a redirected URL."""
-
-    def redirect_request(self, req, fp, code, msg, headers, newurl):
-        """Let urllib report the redirect as an HTTP error rather than follow it."""
-        return None
 
 
 def read_input(path: Path) -> str:
@@ -73,31 +63,20 @@ def read_input(path: Path) -> str:
 
 
 def draft_question(brief: str, rule: str) -> Question:
-    """Read explicit provider settings, make one request, and validate the answer.
+    """Run one text-only Copilot CLI session using its existing GitHub sign-in.
 
-    Both input texts go to the configured HTTPS Chat Completions endpoint.
-    There are no tools, retries, critic calls, or automatic revisions. Provider
-    failures stop the run without printing credentials or raw response bodies.
+    Supply the inputs through stdin, not command arguments. An empty working
+    directory and disabled tools/custom instructions keep repository files out
+    of the task. The script does not retry or print raw CLI error output.
     """
-    names = ("PRAVOPISAC_API_URL", "PRAVOPISAC_API_KEY", "PRAVOPISAC_MODEL")
-    settings = [os.environ.get(name, "").strip() for name in names]
-    missing = [name for name, value in zip(names, settings) if not value]
-    if missing:
-        raise ValueError("Missing environment settings: " + ", ".join(missing))
-    endpoint, api_key, model = settings
-    url = urlsplit(endpoint)
-    if (
-        url.scheme != "https"
-        or not url.hostname
-        or url.username is not None
-        or url.password is not None
-        or url.query
-        or url.fragment
-    ):
+    model = os.environ.get("PRAVOPISAC_MODEL", "").strip()
+    if not model:
+        raise ValueError("Missing environment setting: PRAVOPISAC_MODEL")
+    if os.environ.get("COPILOT_PROVIDER_BASE_URL", "").strip():
         raise ValueError(
-            "The API URL must be HTTPS without credentials, query, or fragment."
+            "Unset COPILOT_PROVIDER_BASE_URL to use your Copilot subscription, "
+            "not a separately billed provider."
         )
-
     instructions = (
         "Draft exactly one unreviewed Croatian two-choice question for the brief. "
         "Use only the supplied rule brief as orthographic evidence. Stay within "
@@ -113,62 +92,45 @@ def draft_question(brief: str, rule: str) -> Question:
         "Keep synthetic/demo inputs explicitly synthetic. Approval of a rule does "
         "not approve a generated question. Do not claim human approval or "
         "verified grade alignment. "
-        "Return only JSON matching this schema: "
+        "Return only a JSON object, without Markdown fences or commentary, "
+        "matching this schema: "
         + json.dumps(Question.model_json_schema(by_alias=True))
     )
-    request = Request(
-        endpoint,
-        data=json.dumps({
-            "model": model,
-            "messages": [
-                {"role": "system", "content": instructions},
-                {
-                    "role": "user",
-                    "content": json.dumps(
-                        {"brief": brief, "rule": rule}, ensure_ascii=False
-                    ),
-                },
-            ],
-            "response_format": {"type": "json_object"},
-        }, ensure_ascii=False).encode("utf-8"),
-        headers={
-            "Content-Type": "application/json",
-            "Authorization": f"Bearer {api_key}",
-        },
-        method="POST",
+    prompt = instructions + "\n\nInputs:\n" + json.dumps(
+        {"brief": brief, "rule": rule}, ensure_ascii=False
     )
+    environment = {**os.environ, "COPILOT_ALLOW_ALL": "false"}
     try:
-        with build_opener(NoRedirects()).open(request, timeout=60) as response:
-            body = response.read()
-    except HTTPError as error:
+        with TemporaryDirectory(prefix="pravopisac-draft-") as directory:
+            # Use a nonmatching tool name: an empty allowlist enables defaults.
+            result = subprocess.run(
+                [
+                    "copilot", "--silent", "--model", model,
+                    "--available-tools=none", "--no-ask-user",
+                    "--disable-builtin-mcps", "--no-custom-instructions",
+                    "--no-auto-update", "--disable-client-telemetry",
+                ],
+                input=prompt, capture_output=True, encoding="utf-8",
+                cwd=directory, env=environment, timeout=120, check=False,
+            )
+    except FileNotFoundError as error:
         raise ValueError(
-            f"Model endpoint returned HTTP {error.code}; no retry was made."
+            "Copilot CLI was not found. Install it and add copilot to PATH; "
+            "see authoring/README.md."
         ) from error
-    except (URLError, OSError, HTTPException) as error:
+    except subprocess.TimeoutExpired as error:
         raise ValueError(
-            "Model endpoint request failed; no retry was made."
+            "Copilot CLI timed out after 120 seconds; no retry was made. "
+            "Copilot usage may already have been consumed."
         ) from error
-
-    # Check only the response fields needed to obtain one complete answer.
-    try:
-        result = json.loads(body)
-    except (ValueError, UnicodeError) as error:
-        raise ValueError("Model endpoint returned invalid JSON.") from error
-    choices = result.get("choices") if isinstance(result, dict) else None
-    if not isinstance(choices, list) or len(choices) != 1:
-        raise ValueError("Model endpoint must return exactly one choice.")
-    choice = choices[0]
-    if not isinstance(choice, dict) or choice.get("finish_reason") != "stop":
-        raise ValueError("Model response did not complete normally.")
-    message = choice.get("message")
-    if not isinstance(message, dict):
-        raise ValueError("Model response is missing its message.")
-    if message.get("refusal"):
-        raise ValueError("The model refused the request.")
-    content = message.get("content")
-    if not isinstance(content, str) or not content.strip():
-        raise ValueError("The model returned no question text.")
-    return Question.model_validate_json(content)
+    if result.returncode:
+        raise ValueError(
+            f"Copilot CLI exited with status {result.returncode}; no retry was made. "
+            "Check copilot login, PRAVOPISAC_MODEL, and your Copilot usage allowance."
+        )
+    if not result.stdout.strip():
+        raise ValueError("Copilot CLI returned no question text.")
+    return Question.model_validate_json(result.stdout)
 
 
 def text_block(text: str) -> str:
@@ -230,7 +192,7 @@ def main(argv: list[str] | None = None) -> int:
     )
     parser.add_argument(
         "--allow-input-sharing", action="store_true", required=True,
-        help="Confirm both input files may be sent to the configured provider",
+        help="Confirm both input files may be sent through GitHub Copilot",
     )
     args = parser.parse_args(argv)
     try:

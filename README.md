@@ -53,10 +53,16 @@ external JSON.
 ## Local question-authoring pilot
 
 [`authoring/draft_question.py`](authoring/draft_question.py) is one separate Python script:
-read a learning brief and a human-reviewed rule brief, call one configured model,
-check the question format, and save a readable draft with its inputs. Human
+read a learning brief and a human-reviewed rule brief, run Copilot CLI with one
+chosen model using your existing Copilot sign-in, check the question format,
+and save a readable draft with its inputs. No separate provider API key is needed;
+generation consumes your Copilot usage allowance. Human
 linguistic review and approval happen through an ordinary pull request, not an
 AI critic or approval subsystem.
+
+Shareable generated drafts are tracked in [`authoring/questions/`](authoring/questions/)
+for line-by-line review. Human approval of the final file approves its question;
+later content changes need review again.
 
 Format checks do not prove correctness or source support. The learner group,
 topic, reviewed rule, and permission to share the input texts must be agreed
