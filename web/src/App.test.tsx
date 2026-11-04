@@ -8,7 +8,7 @@ describe('flash cards', () => {
     render(<App />)
 
     expect(screen.getByRole('complementary', { name: 'Napomena o sadržaju' })).toHaveTextContent(
-      /Odobrena pravopisna pitanja prošla su ljudski pregled/,
+      /Sva pravopisna pitanja prošla su ljudsku provjeru\./,
     )
     expect(screen.getByRole('complementary', { name: 'Napomena o sadržaju' })).toHaveTextContent(
       /Demo kartice služe samo za isprobavanje aplikacije, a ne za učenje pravopisa/,
@@ -24,6 +24,7 @@ describe('flash cards', () => {
     expect(screen.getByRole('progressbar')).toHaveAttribute('value', '0')
     expect(screen.getByRole('progressbar')).toHaveAttribute('max', '4')
     expect(screen.getByRole('progressbar')).toHaveAccessibleName('Napredak kroz pitanja')
+    expect(screen.queryByRole('contentinfo')).not.toBeInTheDocument()
   })
 
   it('shows an explanation for a wrong answer, locks both choices, and resets feedback on next', async () => {

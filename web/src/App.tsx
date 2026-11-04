@@ -65,10 +65,7 @@ export default function App() {
       <header className="site-header">
         <div className="brand">
           <span className="brand-mark" aria-hidden="true">P.</span>
-          <div>
-            <h1>Pravopisac</h1>
-            <p>Mali koraci do sigurnijeg pisanja.</p>
-          </div>
+          <h1>Pravopisac</h1>
         </div>
         <span className="prototype-badge">Prototip</span>
       </header>
@@ -77,8 +74,8 @@ export default function App() {
         <aside className="content-notice" aria-label="Napomena o sadržaju">
           <span className="notice-icon" aria-hidden="true">i</span>
           <p>
-            <strong>O sadržaju.</strong> Odobrena pravopisna pitanja prošla su
-            ljudski pregled. Demo kartice služe samo za isprobavanje aplikacije,
+            <strong>O sadržaju.</strong> Sva pravopisna pitanja prošla su
+            ljudsku provjeru. Demo kartice služe samo za isprobavanje aplikacije,
             a ne za učenje pravopisa.
           </p>
         </aside>
@@ -193,9 +190,6 @@ export default function App() {
           Bez prijave. Napredak se ne sprema nakon osvježavanja stranice.
         </p>
       </main>
-      <footer className="site-footer">
-        Prvo mala kartica. Kasnije velika pustolovina.
-      </footer>
     </div>
   )
 }

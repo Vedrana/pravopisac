@@ -44,7 +44,6 @@ h2:focus { outline: none; }
 }
 
 .brand h1 { font-size: clamp(1.4rem, 4vw, 1.8rem); letter-spacing: -0.06em; }
-.brand p { font-size: 0.8rem; margin-top: 0.2rem; color: #506660; }
 .prototype-badge {
   border: 1px solid #b8c9b7;
   border-radius: 999px;
@@ -199,9 +198,8 @@ h2:focus { outline: none; }
 .primary-button:hover { background: #2e5549; }
 .primary-button > span { font-size: 1.2rem; }
 .next-button { margin-top: 1.5rem; }
-.session-note, .site-footer { color: #506660; text-align: center; line-height: 1.6; }
+.session-note { color: #506660; text-align: center; line-height: 1.6; }
 .session-note { margin-top: 1.25rem; font-size: 0.75rem; }
-.site-footer { padding-top: 2rem; font-size: 0.8rem; }
 .completion { text-align: center; padding-block: 0.5rem; }
 .completion h2 { margin: 0.65rem auto; }
 .completion-mark {
@@ -242,7 +240,6 @@ h2:focus { outline: none; }
 @media (max-width: 540px) {
   .app-shell { width: calc(100% - 2rem); padding-top: 1.5rem; }
   .site-header { margin-bottom: 1.5rem; }
-  .brand p { max-width: 22ch; }
   .brand-mark { width: 44px; height: 48px; }
   .answer-options { grid-template-columns: 1fr; }
   .answer-option { min-height: 76px; }
