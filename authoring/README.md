@@ -1,7 +1,7 @@
 # One-script question drafting
 
-`draft_question.py` reads a learning brief and a human-reviewed rule brief, calls
-one configured AI model, checks the question format, and saves a readable
+`draft_question.py` reads a learning brief and a human-reviewed rule brief, runs
+Copilot CLI with one chosen model, checks the question format, and saves a readable
 Markdown draft for human review. The whole workflow is in that file, with comments
 explaining each meaningful part.
 
@@ -31,8 +31,36 @@ python3 -m venv .local-tools/authoring-venv
 .local-tools/authoring-venv/bin/python -m pip install -r authoring/requirements.txt
 ```
 
-Pydantic is the only dependency. It checks JSON field types and required values;
-it is not an AI model.
+Pydantic is the only Python dependency. It checks JSON field types and required
+values; it is not an AI model.
+
+Install the current [GitHub Copilot CLI](https://docs.github.com/en/copilot/get-started/cli-quickstart),
+then sign in once with the GitHub account that has your Copilot subscription:
+
+```sh
+copilot --version
+copilot login
+```
+
+If the CLI is installed in this checkout's ignored `.local-tools/copilot/`
+directory, first add it to the current terminal's search path:
+
+```sh
+export PATH="$PWD/.local-tools/copilot:$PATH"
+```
+
+No separate provider API key, HTTP endpoint, or web server is required. Copilot
+stores its own sign-in credentials; do not copy them into the repository.
+
+### Prevent additional charges
+
+Generation consumes the same Copilot allowance as your other Copilot use.
+Before a live run, set your **Bundled AI credits budget to $0** and enable
+**Stop usage when budget limit is reached** in GitHub billing settings.
+See [GitHub's billing guidance](https://docs.github.com/en/copilot/reference/copilot-billing/models-and-pricing).
+If your organization pays, ask its billing administrator to confirm equivalent
+spending controls. The script cannot inspect or enforce your account's budget,
+and a failed or timed-out run may still consume usage.
 
 ## Inputs and model
 
@@ -47,23 +75,30 @@ The script requires nonempty files, but does not judge whether the brief is
 educationally appropriate or verify the rule's approval. Confirm that the chosen
 rule version has human approval and that the learning objective fits its scope
 before generating real content. Only send material you are permitted to share
-with the selected provider.
+through GitHub Copilot.
 
-Configure these environment variables through your local credential-management
-process; never put credentials in the repository or command arguments:
+Select the model explicitly in the current terminal, for example:
 
-| Variable | Value |
-| --- | --- |
-| `PRAVOPISAC_API_URL` | Full HTTPS Chat Completions endpoint supporting JSON-object responses |
-| `PRAVOPISAC_API_KEY` | Provider credential |
-| `PRAVOPISAC_MODEL` | The single model to use |
+```sh
+export PRAVOPISAC_MODEL=gpt-6.1-sol
+```
 
-No provider or model is selected automatically. URLs with embedded credentials,
-queries, or fragments are rejected. Both input texts are sent in one request,
-including the rule's source references, with a 60-second timeout, no redirects,
-and no automatic retries. Source URLs are attribution only: the script does not
-fetch them, and the model is instructed not to fetch them or claim to have read
-them.
+Use a model available to your signed-in account; the script never selects one
+automatically or switches to another on failure. `PRAVOPISAC_API_URL` and
+`PRAVOPISAC_API_KEY` are no longer used. A set `COPILOT_PROVIDER_BASE_URL` is
+rejected so that an inherited custom-provider endpoint does not replace Copilot
+subscription access.
+
+Each run starts one new, non-interactive CLI session with a 120-second timeout.
+Both input texts, including the rule's source references, go through standard
+input, not command arguments. The CLI runs in an empty temporary directory with
+no available tools, no built-in MCP servers, no repository custom instructions,
+no automatic CLI updates, and client telemetry disabled. The script disables
+inherited `COPILOT_ALLOW_ALL` so it cannot opt this directory into trusted hooks.
+It does not retry, resume earlier conversations, or grant blanket permissions.
+Source URLs are attribution only: the model has no tools to fetch them and is
+instructed not to claim to have read them. Copilot can retain its own session
+history and logs under its normal settings.
 
 ## Run and review
 
@@ -76,11 +111,13 @@ mkdir -p .authoring
   --allow-input-sharing
 ```
 
-The explicit sharing flag confirms that both files may go to the provider.
+The explicit sharing flag confirms that both files may go through GitHub Copilot.
 The model returns the five existing question fields: `id`, `prompt`, two
 `options`, `correctIndex` (integer 0 or 1), and `explanation`. The script rejects
-missing/blank fields, invalid answer indexes, indistinguishable options, and
-unexpected fields such as a model-generated approval.
+missing/blank fields, invalid answer indexes, options identical after spacing and
+Unicode normalization, and unexpected fields such as a model-generated approval.
+Capitalization differences are preserved: a capitalization exercise needs to
+allow two options that differ only in letter case.
 
 The model is instructed to use only the supplied rule as orthographic evidence,
 respect its scope, exclusions, conditions, and exceptions throughout the question,
@@ -93,8 +130,19 @@ and the full supplied rule brief, including scope limits and source references.
 Approval of the rule does **not** approve the generated question. Format checks
 do not prove correctness, scope compliance, source support, uniqueness, or grade
 alignment. These are human review tasks.
-Provider errors, refusals, malformed responses, or invalid questions exit nonzero
-without saving a draft. Existing output files are never overwritten.
+CLI errors, refusals, malformed responses, or invalid questions exit nonzero
+without saving a draft. The response must be a plain JSON object; prose and
+Markdown fences are rejected, not silently repaired or retried. Existing output
+files are never overwritten.
+
+To generate another draft, run the same command with a new `--output` path, such
+as `.authoring/draft-2.md`. This makes generation repeatable, not deterministic:
+the same inputs and model can produce different wording.
+
+If the command fails because Copilot is unavailable, check `copilot --version`,
+run `copilot login` if needed, and confirm the model and remaining allowance in
+Copilot. Raw CLI diagnostics are not printed by the script, to avoid exposing
+private output. Resolve the cause before explicitly running it again.
 
 A human linguistic reviewer must check both options, the explanation, compliance
 with the rule's scope, source support, learner suitability, and duplicates.
@@ -116,8 +164,9 @@ demo cards and makes no model calls.
 .local-tools/authoring-venv/bin/python -m unittest discover -s authoring/tests -v
 ```
 
-Tests use explicitly synthetic fixtures and mocked HTTP responses, without live
-model calls or credentials. They do not establish educational correctness.
+Tests use explicitly synthetic fixtures and mocked CLI processes, without live
+model calls, an installed Copilot CLI, or credentials. They do not establish
+educational correctness.
 
 The previous packaged CLI and its `draft`, `review`, and `verify-review` commands
 have been removed. Use this script and `PRAVOPISAC_MODEL` instead of the former
