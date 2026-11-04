@@ -159,8 +159,12 @@ Approval of the final file approves its question; there is no separate approved
 copy or approval system. Later content edits need review again. Do not publish
 unreviewed questions in the app or commit material you cannot redistribute.
 
-There is still no app importer or publisher. The browser app keeps its synthetic
-demo cards and makes no model calls.
+There is no automated app importer or publisher. The first approved question has
+been copied unchanged into [`web/src/questions.ts`](../web/src/questions.ts) with
+its authoring-file reference and human-approval link. The browser app shows it
+first, alongside three clearly marked synthetic demo cards, and makes no model
+calls. Publishing another question requires recorded human approval followed by
+a manual addition to the app data; later content edits need review again.
 
 ## Checks and the previous interface
 

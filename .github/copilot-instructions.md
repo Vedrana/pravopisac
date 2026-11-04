@@ -8,8 +8,10 @@
 - Run `npm run lint`, `npm test`, and `npm run build` from `web/` for app changes.
 - Keep educational question data separate from its presentation so it can later
   be reused by a game.
-- The current cards are explicitly labeled demo fixtures. Do not present
-  generated questions as reviewed Croatian content or claim grade alignment.
+- Keep demo fixtures explicitly labeled. Only present a question as approved
+  Croatian content when its tracked authoring file records human approval;
+  retain that file reference and approval link in app data. Do not claim grade
+  alignment.
 - Keep child-facing UI text Croatian, touch-friendly, and keyboard accessible.
   Feedback must not rely on color alone.
 - The app is static: no runtime model requests, credentials, accounts, telemetry,

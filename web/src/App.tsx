@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { demoQuestions } from './questions'
+import { questions } from './questions'
 import type { AnswerIndex } from './questions'
 
 type QuizSession = {
@@ -8,7 +8,7 @@ type QuizSession = {
 }
 
 const optionIndices = [0, 1] as const
-const questionCount = demoQuestions.length
+const questionCount = questions.length
 
 export default function App() {
   const [session, setSession] = useState<QuizSession>({
@@ -17,11 +17,11 @@ export default function App() {
   })
   const titleRef = useRef<HTMLHeadingElement>(null)
   const nextButtonRef = useRef<HTMLButtonElement>(null)
-  const question = demoQuestions[session.currentIndex]
+  const question = questions[session.currentIndex]
   const selectedAnswer = session.answers[session.currentIndex]
   const hasAnswered = selectedAnswer !== undefined
   const isComplete = session.currentIndex === questionCount
-  const score = demoQuestions.filter(
+  const score = questions.filter(
     (item, index) => session.answers[index] === item.correctIndex,
   ).length
 
@@ -70,25 +70,26 @@ export default function App() {
             <p>Mali koraci do sigurnijeg pisanja.</p>
           </div>
         </div>
-        <span className="demo-badge">Demo</span>
+        <span className="prototype-badge">Prototip</span>
       </header>
 
       <main>
-        <aside className="demo-notice" aria-label="Napomena o demo sadržaju">
+        <aside className="content-notice" aria-label="Napomena o sadržaju">
           <span className="notice-icon" aria-hidden="true">i</span>
           <p>
-            <strong>Isprobaj kako aplikacija radi.</strong> Ovo su probni podaci,
-            a ne pravopisni zadaci za učenje.
+            <strong>O sadržaju.</strong> Odobrena pravopisna pitanja prošla su
+            ljudski pregled. Demo kartice služe samo za isprobavanje aplikacije,
+            a ne za učenje pravopisa.
           </p>
         </aside>
 
         <div className="progress-label">
-          <span>Demo kartice</span>
+          <span>Kartice</span>
           <span>{session.answers.length} / {questionCount} riješeno</span>
         </div>
         <progress
           className="quiz-progress"
-          aria-label="Napredak kroz demo pitanja"
+          aria-label="Napredak kroz pitanja"
           max={questionCount}
           value={session.answers.length}
         />
@@ -99,13 +100,13 @@ export default function App() {
               <span className="completion-mark" aria-hidden="true">✓</span>
               <p className="eyebrow">Sve kartice su riješene</p>
               <h2 id="question-title" ref={titleRef} tabIndex={-1}>
-                Demo je gotov!
+                Sve je riješeno!
               </h2>
               <p className="completion-copy">
-                Svaka kartica ima pitanje, odgovor i objašnjenje.
+                Rezultat uključuje odobrena pitanja i probne demo kartice.
               </p>
               <div className="score">
-                <span>Točni demo odgovori</span>
+                <span>Točni odgovori</span>
                 <strong>{score} / {questionCount}</strong>
               </div>
               <button className="primary-button" onClick={restart}>
@@ -122,6 +123,11 @@ export default function App() {
                   {String(session.currentIndex + 1).padStart(2, '0')}
                 </span>
               </div>
+              <p className="question-status">
+                {question.status === 'approved'
+                  ? 'Odobreno pravopisno pitanje'
+                  : 'Demo kartica — probni podaci'}
+              </p>
               <h2 id="question-title" ref={titleRef} tabIndex={-1}>
                 {question.prompt}
               </h2>
