@@ -60,6 +60,10 @@ generation consumes your Copilot usage allowance. Human
 linguistic review and approval happen through an ordinary pull request, not an
 AI critic or approval subsystem.
 
+Shareable generated drafts are tracked in [`authoring/questions/`](authoring/questions/)
+for line-by-line review. Human approval of the final file approves its question;
+later content changes need review again.
+
 Format checks do not prove correctness or source support. The learner group,
 topic, reviewed rule, and permission to share the input texts must be agreed
 before real generation. Checked-in fixtures are synthetic tests, not learning content.

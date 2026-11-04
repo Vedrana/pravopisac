@@ -103,11 +103,11 @@ history and logs under its normal settings.
 ## Run and review
 
 ```sh
-mkdir -p .authoring
+mkdir -p .authoring authoring/questions
 .local-tools/authoring-venv/bin/python authoring/draft_question.py \
   --brief .authoring/brief.txt \
   --rule authoring/rules/capitalization-personal-names.md \
-  --output .authoring/draft.md \
+  --output authoring/questions/draft.md \
   --allow-input-sharing
 ```
 
@@ -136,7 +136,7 @@ Markdown fences are rejected, not silently repaired or retried. Existing output
 files are never overwritten.
 
 To generate another draft, run the same command with a new `--output` path, such
-as `.authoring/draft-2.md`. This makes generation repeatable, not deterministic:
+as `authoring/questions/draft-2.md`. This makes generation repeatable, not deterministic:
 the same inputs and model can produce different wording.
 
 If the command fails because Copilot is unavailable, check `copilot --version`,
@@ -146,11 +146,18 @@ private output. Resolve the cause before explicitly running it again.
 
 A human linguistic reviewer must check both options, the explanation, compliance
 with the rule's scope, source support, learner suitability, and duplicates.
-Discuss and correct the proposed content through a pull request, and approve only
-the final reviewed version.
-Edits need review again. Do not publish unreviewed content or reference material
-you cannot redistribute. The scratch draft itself stays local; when proposing
-content in Git, include only shareable material needed for review.
+Commit shareable drafts under `authoring/questions/` so reviewers can comment on
+the generated sentences directly. If a draft was saved in ignored `.authoring/`,
+copy its shareable content into that tracked directory first; keep private or
+temporary material local. The first live-generated example is
+[`questions/personal-name-question-1.md`](questions/personal-name-question-1.md).
+
+Make requested corrections in that same tracked file. It remains unreviewed until
+a human explicitly approves the final content in a pull request review or comment.
+Then replace its unreviewed notice with an approval note and link to that approval.
+Approval of the final file approves its question; there is no separate approved
+copy or approval system. Later content edits need review again. Do not publish
+unreviewed questions in the app or commit material you cannot redistribute.
 
 There is still no app importer or publisher. The browser app keeps its synthetic
 demo cards and makes no model calls.
