@@ -1,6 +1,7 @@
 # Razmaci uz osnovne rečenične znakove
 
-Unreviewed rule brief. Human linguistic review is required before generation.
+Reviewed and approved by a human.
+Approval recorded in [pull request #10](https://github.com/Vedrana/pravopisac/pull/10#pullrequestreview-5815187748).
 
 ## Rule
 

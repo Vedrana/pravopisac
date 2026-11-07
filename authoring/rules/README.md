@@ -8,15 +8,16 @@ learner-specific brief and from generated questions.
 first human-reviewed and approved rule brief. This README defines the shared
 format and review process.
 
-## Draft batch for earlier primary-school writing
+## Approved batch for earlier primary-school writing
 
 The following 18 briefs implement the scope agreed in
 [issue #9](https://github.com/Vedrana/pravopisac/issues/9). They are
-**unreviewed drafts**, not approved inputs for question generation.
+**human-reviewed and approved** inputs for question generation, with approval
+recorded in [pull request #10](https://github.com/Vedrana/pravopisac/pull/10#pullrequestreview-5815187748).
 The intended audience does not establish verified school-grade alignment.
 The existing approved personal-name brief is unchanged.
 
-| Area | Draft briefs |
+| Area | Approved briefs |
 | --- | --- |
 | Capitalization | [Sentence start](capitalization-sentence-start.md), [single-word animal names](capitalization-animal-names.md) |
 | Settlement names | [Single-word](capitalization-single-word-settlement-names.md), [multiword](capitalization-multiword-settlement-names.md) |
@@ -27,10 +28,10 @@ The existing approved personal-name brief is unchanged.
 | Separate word writing | [Ne with verbs](word-separation-ne-verbs.md), [question particle li](word-separation-question-particle-li.md) |
 
 This batch excludes č/ć, dž/đ, and ije/je. Each brief states its own narrower
-scope and exclusions; do not infer missing rules from it. Approval of the
-batch scope is not linguistic approval of these files. Each needs the human
-review described below before generation. No questions or app content are
-added by this batch.
+scope and exclusions; do not infer missing rules from it. Human approval of
+these versions is recorded separately from the earlier scope agreement.
+Later rule changes require fresh review, and generated questions require
+their own human approval. No questions or app content are added by this batch.
 
 ## One file per rule
 
