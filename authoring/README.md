@@ -1,7 +1,8 @@
 # One-script question drafting
 
-`draft_question.py` reads a learning brief and a human-reviewed rule brief, runs
-Copilot CLI with one chosen model, checks the question format, and saves a readable
+`draft_question.py` reads shared question guidelines, a question-specific learning
+brief, and a human-reviewed rule brief, runs Copilot CLI with one chosen model,
+checks the question format, and saves a readable
 Markdown draft for human review. The whole workflow is in that file, with comments
 explaining each meaningful part.
 
@@ -70,18 +71,42 @@ and a failed or timed-out run may still consume usage.
 
 ## Inputs and model
 
-Choose two UTF-8 input files:
+Choose three UTF-8 input files:
 
+- Shared [question guidelines](question-guidelines.md): the audience, wording,
+  explanation standard, and human-review criteria. The initial profile is for
+  beginning readers, not every primary-school reading level.
 - A learning brief, such as `.authoring/brief.txt` in the ignored scratch directory:
-  the agreed learner group, topic, learning objective, and instructions.
+  the learning objective, selected rule sub-scope, and example constraints.
+  Keep personal learning plans and private exercises outside the repository.
 - One human-reviewed file from [`rules/`](rules/README.md), including its rule,
   scope, conditions and exceptions, and source references.
 
-The script requires nonempty files, but does not judge whether the brief is
+The script requires all three files explicitly; `--guidelines` has no implicit
+default. It checks that files are nonempty, but does not judge whether the brief is
 educationally appropriate or verify the rule's approval. Confirm that the chosen
 rule version has human approval and that the learning objective fits its scope
 before generating real content. Only send material you are permitted to share
 through GitHub Copilot.
+
+For example, a question-specific brief for the existing personal-name rule could
+contain:
+
+```text
+Learning objective: Recognize that a person's single-word given name starts
+with a capital letter even when it is not the first word of the sentence.
+
+Example constraints: Use one fictional person's single-word given name in a
+short sentence, away from the sentence start. The two options must be identical
+except for the initial capitalization of that name. Do not test surnames or a
+second spelling distinction.
+
+Draft one unreviewed question, not approved learning content.
+```
+
+The shared guidelines supply the reading level and explanation requirements;
+the brief need not repeat them. Agree on a different guidelines profile before
+targeting a different reading level.
 
 Select the model explicitly in the current terminal, for example:
 
@@ -96,7 +121,7 @@ rejected so that an inherited custom-provider endpoint does not replace Copilot
 subscription access.
 
 Each run starts one new, non-interactive CLI session with a 120-second timeout.
-Both input texts, including the rule's source references, go through standard
+All three input texts, including the rule's source references, go through standard
 input, not command arguments. The CLI runs in an empty temporary directory with
 no available tools, no built-in MCP servers, no repository custom instructions,
 no automatic CLI updates, and client telemetry disabled. The script disables
@@ -112,12 +137,14 @@ history and logs under its normal settings.
 mkdir -p .authoring authoring/questions
 .local-tools/authoring-venv/bin/python authoring/draft_question.py \
   --brief .authoring/brief.txt \
+  --guidelines authoring/question-guidelines.md \
   --rule authoring/rules/capitalization-personal-names.md \
   --output authoring/questions/draft.md \
   --allow-input-sharing
 ```
 
-The explicit sharing flag confirms that both files may go through GitHub Copilot.
+The explicit sharing flag confirms that all three files may go through
+GitHub Copilot.
 The model returns the five existing question fields: `id`, `prompt`, two
 `options`, `correctIndex` (integer 0 or 1), and `explanation`. The script rejects
 missing/blank fields, invalid answer indexes, options identical after spacing and
@@ -130,9 +157,15 @@ respect its scope, exclusions, conditions, and exceptions throughout the questio
 and refuse if the learning brief conflicts with the rule or the rule cannot
 support a question. It must not infer additional rules or fill gaps with outside
 knowledge. These are model instructions, not automated linguistic checks.
+Shared guidelines govern audience and style; the question-specific brief supplies
+the objective and example constraints, not an override of those guidelines.
+The model is instructed to refuse if the guidelines and brief conflict.
+Repository custom instructions are disabled, so guidance saved only in
+`.github/copilot-instructions.md` is not supplied to this generator.
 
-The output contains the proposed question and answer, explanation, original brief,
-and the full supplied rule brief, including scope limits and source references.
+The output contains the proposed question and answer, explanation, shared
+guidelines, original question-specific brief, and the full supplied rule brief,
+including scope limits and source references.
 Approval of the rule does **not** approve the generated question. Format checks
 do not prove correctness, scope compliance, source support, uniqueness, or grade
 alignment. These are human review tasks.
@@ -151,7 +184,8 @@ Copilot. Raw CLI diagnostics are not printed by the script, to avoid exposing
 private output. Resolve the cause before explicitly running it again.
 
 A human linguistic reviewer must check both options, the explanation, compliance
-with the rule's scope, source support, learner suitability, and duplicates.
+with the rule's scope, source support, learner suitability, explanation readability
+against the supplied guidelines, and duplicates.
 Commit shareable drafts under `authoring/questions/` so reviewers can comment on
 the generated sentences directly. If a draft was saved in ignored `.authoring/`,
 copy its shareable content into that tracked directory first; keep private or
@@ -176,6 +210,8 @@ a manual addition to the app data; later content edits need review again.
 
 `--rule` replaces `--references`, and `--allow-input-sharing` replaces
 `--allow-reference-sharing`. The old flags are no longer accepted.
+New runs also require `--guidelines`. Previously reviewed questions retain their
+original inputs and approval; do not rewrite their historical generation briefs.
 
 ```sh
 .local-tools/authoring-venv/bin/python -m unittest discover -s authoring/tests -v

@@ -1,0 +1,2 @@
+SYNTHETIC DEMO ONLY: shared guidelines for offline process tests.
+Use explicitly synthetic wording. These inputs do not establish learner suitability.

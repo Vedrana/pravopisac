@@ -35,6 +35,11 @@ def rule_text():
     return (FIXTURES / "rule.md").read_text(encoding="utf-8").strip()
 
 
+def guidelines_text():
+    """Load explicitly synthetic shared authoring guidelines."""
+    return (FIXTURES / "guidelines.txt").read_text(encoding="utf-8").strip()
+
+
 def cli_result(content=None, returncode=0):
     """Represent captured CLI output without invoking a real model."""
     return subprocess.CompletedProcess(
@@ -85,12 +90,16 @@ class FormatTests(unittest.TestCase):
 
     def test_markdown_contains_question_and_inputs_without_tracking_or_approval(self):
         question = script.Question.model_validate_json(json.dumps(question_data()))
-        document = script.render_draft(question, "Synthetic brief", rule_text())
+        document = script.render_draft(
+            question, "Synthetic brief", rule_text(), guidelines_text()
+        )
         for text in (
             "# Unreviewed question draft", question.prompt, *question.options,
             question.explanation, "Proposed correct answer: A", "Synthetic brief",
             "## Supplied rule brief", rule_text(), "pull request review",
             "not an approval", "Approval of the rule does not approve this question.",
+            "## Supplied question guidelines", guidelines_text(),
+            "## Question-specific brief", "explanation readability",
         ):
             self.assertIn(text, document)
         self.assertNotIn("sha256", document)
@@ -100,6 +109,13 @@ class FormatTests(unittest.TestCase):
         text = "```\n# Fake heading\n<script>untrusted text</script>\n````"
         block = script.text_block(text)
         self.assertEqual(block, f"`````text\n{text}\n`````")
+
+    def test_all_supplied_inputs_are_rendered_as_literal_text(self):
+        question = script.Question.model_validate_json(json.dumps(question_data()))
+        inputs = ("Brief\n```", "Rule\n````", "Guidelines\n# Heading\n```")
+        document = script.render_draft(question, *inputs)
+        for text in inputs:
+            self.assertIn(script.text_block(text), document)
 
 
 class CopilotTests(unittest.TestCase):
@@ -115,8 +131,10 @@ class CopilotTests(unittest.TestCase):
         self.addCleanup(self.run_patch.stop)
         self.run.return_value = cli_result()
 
-    def test_one_invocation_supplies_both_inputs_and_explicit_model_without_tools(self):
-        question = script.draft_question("Synthetic brief", rule_text())
+    def test_one_invocation_supplies_three_inputs_and_explicit_model_without_tools(self):
+        question = script.draft_question(
+            "Synthetic brief", rule_text(), guidelines_text()
+        )
         self.run.assert_called_once()
         command = self.run.call_args.args[0]
         self.assertEqual(
@@ -131,9 +149,14 @@ class CopilotTests(unittest.TestCase):
         options = self.run.call_args.kwargs
         self.assertEqual(
             json.loads(options["input"].split("\n\nInputs:\n", 1)[1]),
-            {"brief": "Synthetic brief", "rule": rule_text()},
+            {
+                "guidelines": guidelines_text(),
+                "brief": "Synthetic brief",
+                "rule": rule_text(),
+            },
         )
-        self.assertNotIn("Synthetic brief", " ".join(command))
+        for text in ("Synthetic brief", rule_text(), guidelines_text()):
+            self.assertNotIn(text, " ".join(command))
         self.assertEqual(options["timeout"], 120)
         self.assertTrue(options["capture_output"])
         self.assertEqual(options["encoding"], "utf-8")
@@ -150,10 +173,10 @@ class CopilotTests(unittest.TestCase):
 
         self.run.side_effect = capture
         with patch.dict("os.environ", {"COPILOT_ALLOW_ALL": "true"}):
-            script.draft_question("Synthetic brief", rule_text())
+            script.draft_question("Synthetic brief", rule_text(), guidelines_text())
 
     def test_instructions_limit_generation_to_rule_without_fetching_sources(self):
-        script.draft_question("Synthetic brief", rule_text())
+        script.draft_question("Synthetic brief", rule_text(), guidelines_text())
         instructions = self.run.call_args.kwargs["input"].split("\n\nInputs:\n", 1)[0]
         for requirement in (
             "Use only the supplied rule brief as orthographic evidence",
@@ -169,6 +192,10 @@ class CopilotTests(unittest.TestCase):
             "Approval of a rule does not approve a generated question",
             "Do not claim human approval or verified grade alignment",
             "without Markdown fences or commentary",
+            "Follow the supplied shared guidelines for audience, wording, and explanation style",
+            "not to relax the shared guidelines",
+            "If the guidelines and brief conflict, refuse rather than silently choosing one",
+            "or the guidelines conflict with the rule",
         ):
             with self.subTest(requirement=requirement):
                 self.assertIn(requirement, instructions)
@@ -180,7 +207,7 @@ class CopilotTests(unittest.TestCase):
                 settings = {} if model is None else {"PRAVOPISAC_MODEL": model}
                 with patch.dict("os.environ", settings, clear=True):
                     with self.assertRaisesRegex(ValueError, "PRAVOPISAC_MODEL"):
-                        script.draft_question("brief", "rule brief")
+                        script.draft_question("brief", "rule brief", guidelines_text())
         self.run.assert_not_called()
 
     def test_custom_provider_is_rejected_before_invocation(self):
@@ -188,7 +215,7 @@ class CopilotTests(unittest.TestCase):
             "COPILOT_PROVIDER_BASE_URL": "https://provider.example.invalid",
         }):
             with self.assertRaisesRegex(ValueError, "Copilot subscription"):
-                script.draft_question("brief", "rule brief")
+                script.draft_question("brief", "rule brief", guidelines_text())
         self.run.assert_not_called()
 
     def test_missing_cli_and_timeout_are_actionable_and_not_retried(self):
@@ -205,7 +232,7 @@ class CopilotTests(unittest.TestCase):
                 self.run.reset_mock()
                 self.run.side_effect = error
                 with self.assertRaisesRegex(ValueError, message) as caught:
-                    script.draft_question("brief", "rule brief")
+                    script.draft_question("brief", "rule brief", guidelines_text())
                 self.assertNotIn("synthetic-secret-never-log", str(caught.exception))
                 self.run.assert_called_once()
 
@@ -213,7 +240,7 @@ class CopilotTests(unittest.TestCase):
         self.run.return_value = cli_result(returncode=1)
         self.run.return_value.stderr = "synthetic-secret-never-log"
         with self.assertRaisesRegex(ValueError, "status 1") as caught:
-            script.draft_question("brief", "rule brief")
+            script.draft_question("brief", "rule brief", guidelines_text())
         self.assertIn("copilot login", str(caught.exception))
         self.assertIn("usage allowance", str(caught.exception))
         self.assertNotIn("synthetic-secret-never-log", str(caught.exception))
@@ -222,7 +249,7 @@ class CopilotTests(unittest.TestCase):
     def test_blank_output_is_an_explicit_failure(self):
         self.run.return_value = cli_result(" \n ")
         with self.assertRaisesRegex(ValueError, "no question text"):
-            script.draft_question("brief", "rule brief")
+            script.draft_question("brief", "rule brief", guidelines_text())
         self.run.assert_called_once()
 
     def test_refusal_prose_fences_truncation_and_invalid_shapes_are_not_retried(self):
@@ -235,7 +262,7 @@ class CopilotTests(unittest.TestCase):
                 self.run.reset_mock()
                 self.run.return_value = cli_result(text)
                 with self.assertRaises(ValidationError):
-                    script.draft_question("brief", "rule brief")
+                    script.draft_question("brief", "rule brief", guidelines_text())
                 self.run.assert_called_once()
 
 
@@ -249,6 +276,7 @@ class CommandTests(unittest.TestCase):
         self.directory = Path(directory.name)
         self.output = self.directory / "draft.md"
         self.args = [
+            "--guidelines", str(FIXTURES / "guidelines.txt"),
             "--brief", str(FIXTURES / "brief.txt"),
             "--rule", str(FIXTURES / "rule.md"),
             "--output", str(self.output), "--allow-input-sharing",
@@ -267,15 +295,20 @@ class CommandTests(unittest.TestCase):
                 status, stdout, stderr = self.invoke()
         self.assertEqual((status, stderr), (0, ""))
         run.assert_called_once()
+        supplied = json.loads(run.call_args.kwargs["input"].split("\n\nInputs:\n", 1)[1])
+        self.assertEqual(supplied["rule"], rule_text())
+        self.assertEqual(supplied["guidelines"], guidelines_text())
         self.assertEqual(
-            json.loads(run.call_args.kwargs["input"].split("\n\nInputs:\n", 1)[1])["rule"],
-            rule_text(),
+            supplied["brief"],
+            (FIXTURES / "brief.txt").read_text(encoding="utf-8").strip(),
         )
         self.assertIn("Human linguistic review is required", stdout)
         document = self.output.read_text(encoding="utf-8")
         self.assertIn(question_data()["prompt"], document)
         self.assertIn("SYNTHETIC DEMO ONLY", document)
         self.assertIn(rule_text(), document)
+        self.assertIn(guidelines_text(), document)
+        self.assertIn(supplied["brief"], document)
         self.assertIn("Approval of the rule does not approve this question.", document)
         self.assertEqual(list(self.directory.iterdir()), [self.output])
 
@@ -316,7 +349,7 @@ class CommandTests(unittest.TestCase):
 
     def test_missing_blank_and_invalid_utf8_inputs_prevent_model_call(self):
         with patch.object(script, "draft_question") as call:
-            for argument in ("--brief", "--rule"):
+            for argument in ("--guidelines", "--brief", "--rule"):
                 path = self.directory / "input.txt"
                 for content in (None, b" \n ", b"\xff"):
                     with self.subTest(argument=argument, content=content):
@@ -328,6 +361,17 @@ class CommandTests(unittest.TestCase):
                         args[args.index(argument) + 1] = str(path)
                         self.assertEqual(self.invoke(args)[0], 1)
             call.assert_not_called()
+        self.assertFalse(self.output.exists())
+
+    def test_guidelines_are_required_before_model_call(self):
+        args = self.args.copy()
+        index = args.index("--guidelines")
+        del args[index:index + 2]
+        with patch.object(script, "draft_question") as call, redirect_stderr(io.StringIO()):
+            with self.assertRaises(SystemExit) as caught:
+                script.main(args)
+        self.assertEqual(caught.exception.code, 2)
+        call.assert_not_called()
         self.assertFalse(self.output.exists())
 
     def test_failures_print_no_success_and_save_no_draft(self):
@@ -355,6 +399,7 @@ class CommandTests(unittest.TestCase):
             cwd=self.directory, capture_output=True, text=True, check=True,
         )
         self.assertIn("--rule", result.stdout)
+        self.assertIn("--guidelines", result.stdout)
         self.assertIn("--allow-input-sharing", result.stdout)
         self.assertNotIn("--references", result.stdout)
         self.assertNotIn("verify-review", result.stdout)
