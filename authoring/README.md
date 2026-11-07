@@ -22,6 +22,12 @@ The first human-reviewed and approved brief is
 Pass the chosen reviewed rule file directly through `--rule`; there is no need
 to copy it into a separate reference file.
 
+Use the [orthography coverage roadmap](orthography-coverage.md) to choose future
+paraphrase batches and identify gaps beyond existing briefs. It groups remaining
+scopes by recommended age and difficulty, with specialist reference material kept
+separate. Update its covered scopes as briefs are added; the roadmap is not a
+reviewed rule input and does not establish school-grade alignment.
+
 ## Setup
 
 Use Python 3.11 or newer; CI uses Python 3.13. From the repository root:
