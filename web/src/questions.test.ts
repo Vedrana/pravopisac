@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
-import { demoQuestions, questions } from './questions'
+import { questions } from './questions'
 
 describe('question data', () => {
   it('copies the approved question exactly and retains its recorded approval', () => {
@@ -40,10 +40,9 @@ describe('question data', () => {
     )
   })
 
-  it('keeps the three synthetic fixtures marked as demo and all question IDs unique', () => {
-    expect(questions.slice(1)).toEqual(demoQuestions)
-    expect(demoQuestions).toHaveLength(3)
-    expect(demoQuestions.every((question) => question.status === 'demo')).toBe(true)
+  it('contains only approved questions and keeps all question IDs unique', () => {
+    expect(questions).toHaveLength(1)
+    expect(questions.every((question) => question.status === 'approved')).toBe(true)
     expect(new Set(questions.map((question) => question.id)).size).toBe(questions.length)
   })
 })

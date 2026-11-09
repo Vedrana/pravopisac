@@ -6,44 +6,10 @@ export type Question = {
   options: readonly [string, string]
   correctIndex: AnswerIndex
   explanation: string
-} & (
-  | {
-      status: 'approved'
-      authoringFile: string
-      approvalUrl: string
-    }
-  | { status: 'demo' }
-)
-
-export const demoQuestions = [
-  {
-    id: 'demo-1',
-    status: 'demo',
-    prompt: 'U ovom primjeru odaberi odgovor A.',
-    options: ['Probni odgovor A', 'Probni odgovor B'],
-    correctIndex: 0,
-    explanation:
-      'Odgovor A označen je kao točan samo radi demonstracije sučelja.',
-  },
-  {
-    id: 'demo-2',
-    status: 'demo',
-    prompt: 'Sada odaberi odgovor B.',
-    options: ['Probni odgovor A', 'Probni odgovor B'],
-    correctIndex: 1,
-    explanation:
-      'Ovaj primjer pokazuje da točan odgovor ne mora uvijek biti na istom mjestu.',
-  },
-  {
-    id: 'demo-3',
-    status: 'demo',
-    prompt: 'Za posljednji primjer ponovno odaberi odgovor B.',
-    options: ['Probni odgovor A', 'Probni odgovor B'],
-    correctIndex: 1,
-    explanation:
-      'Ovo je posljednja demo kartica. Nakon nje možeš pogledati rezultat ili krenuti ispočetka.',
-  },
-] as const satisfies readonly Question[]
+  status: 'approved'
+  authoringFile: string
+  approvalUrl: string
+}
 
 export const questions = [
   {
@@ -58,5 +24,4 @@ export const questions = [
     explanation:
       'Ana je osobno ime pa počinje velikim slovom i kad nije na početku rečenice.',
   },
-  ...demoQuestions,
 ] as const satisfies readonly Question[]
