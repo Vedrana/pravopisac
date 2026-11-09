@@ -73,8 +73,17 @@ Check that:
 - The question does not duplicate an existing example without a useful new
   learning purpose.
 
-The generator's format checks do not establish any of these qualities. Correct
-and human-approve each tracked question using the existing pull request process.
+Learner suitability means that a child at the stated reading level can understand
+the task, options, and explanation, and that the question supports the stated
+learning objective without requiring unrelated knowledge. A human reviewer must
+assess the actual question against these criteria; neither a test fixture nor
+the generator's format checks establish suitability.
+
+Correct and human-approve each tracked question using the existing pull request
+process. Record approval of learner suitability alongside linguistic correctness
+in the question's tracked file, with a link to the approving review or comment.
+This records a human judgment, not verified school-grade alignment or a guarantee
+that every child will understand the question.
 Keep the original guidelines, brief, and rule text in the draft so reviewers can
 see what was supplied. Later edits to approved question content need fresh review.
 
