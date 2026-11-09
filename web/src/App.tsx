@@ -75,8 +75,7 @@ export default function App() {
           <span className="notice-icon" aria-hidden="true">i</span>
           <p>
             <strong>O sadržaju.</strong> Sva pravopisna pitanja prošla su
-            ljudsku provjeru. Demo kartice služe samo za isprobavanje aplikacije,
-            a ne za učenje pravopisa.
+            ljudsku provjeru.
           </p>
         </aside>
 
@@ -100,7 +99,7 @@ export default function App() {
                 Sve je riješeno!
               </h2>
               <p className="completion-copy">
-                Rezultat uključuje odobrena pitanja i probne demo kartice.
+                Rezultat uključuje samo odobrena pravopisna pitanja.
               </p>
               <div className="score">
                 <span>Točni odgovori</span>
@@ -121,9 +120,7 @@ export default function App() {
                 </span>
               </div>
               <p className="question-status">
-                {question.status === 'approved'
-                  ? 'Odobreno pravopisno pitanje'
-                  : 'Demo kartica — probni podaci'}
+                Odobreno pravopisno pitanje
               </p>
               <h2 id="question-title" ref={titleRef} tabIndex={-1}>
                 {question.prompt}
