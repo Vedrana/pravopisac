@@ -85,8 +85,9 @@ remove the notice. The final paraphrased rule remains in the same file's
 `## Rule` section, with the original source reference in `## Sources`.
 
 Use the approved version as input to question generation with
-`draft_question.py --rule path/to/rule.md` (alongside the learning brief, output
-path, and sharing confirmation described in the [authoring guide](../README.md)).
+`draft_question.py --rule path/to/rule.md` (alongside explicit `--guidelines`,
+the question-specific learning brief, output path, and sharing confirmation
+described in the [authoring guide](../README.md)).
 Removing the notice alone does not establish approval. If the rule changes later,
 restore the notice and obtain fresh review before using the changed version.
 Generated questions require their own human review against the rule and source.
@@ -95,8 +96,9 @@ Write original descriptions of the underlying rules, not copied or closely
 paraphrased handbook prose. Rephrasing alone does not establish permission to
 reuse source material. Store and send only material whose use is permitted.
 
-The script sends the full supplied rule brief to the configured model and
-includes it in the question draft. It instructs the model to stay within the
+The script sends the shared guidelines, question-specific brief, and full
+supplied rule brief to the configured model and includes them in the question
+draft. It instructs the model to stay within the
 rule's scope and not infer additional rules or fetch linked sources. The script
 does not verify approval or linguistic correctness, fetch sources, or publish
 questions to the app.

@@ -1,0 +1,6 @@
+SYNTHETIC DEMO ONLY: shared guidelines for offline process tests.
+Use made-up test content and label it as a demo, not a real learning question.
+These tests check the script's behavior, not whether a child can understand a question.
+Learner suitability requires a human to review the actual prompt, both options,
+and explanation against the intended reading level and learning objective,
+then record approval in the question's tracked file with a link to the review.
