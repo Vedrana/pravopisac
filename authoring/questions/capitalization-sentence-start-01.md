@@ -1,27 +1,28 @@
-# Unreviewed question draft
+# Approved question
 
-Only basic format checks have passed. A human must check correctness, both options,
-the explanation, and suitability against the supplied rule and its sources.
-Approval of the rule does not approve this question.
+Human-reviewed and approved by @Vedrana on 17 November 2026, with the requested
+PR corrections applied. [Approval record](https://github.com/Vedrana/pravopisac/pull/48#issuecomment-6960900188).
+This records the human reviewer's explicit instruction; it is not an AI approval.
+Later content edits require fresh human review. No school-grade alignment is claimed.
 
 Drafted in the GitHub Copilot app with `gpt-6.1-sol` on 9 November 2026. Format-checked and rendered with `Question` and `render_draft` from `authoring/draft_question.py`; this batch did not invoke the standalone Copilot CLI generator.
 
 Rule ID: `capitalization-sentence-start`. Rule file: [`capitalization-sentence-start.md`](../rules/capitalization-sentence-start.md).
 Rule and guidelines input revision: `830a11ba1b5d527544baa5968f1b4ec54d38e8df`. The supplied inputs are preserved below.
 
-## Proposed question
+## Approved question
 
 ```text
 ID: capitalization-sentence-start-01
 
-Koja rečenica pravilno počinje?
+Koja je rečenica pravilno napisana?
 
 A: Ptica pjeva.
 B: ptica pjeva.
 
-Proposed correct answer: A
+Correct answer: A
 
-Explanation: Ptica je prva riječ rečenice pa počinje velikim slovom.
+Explanation: Ptica je prva riječ rečenice pa je pišemo velikim početnim slovom.
 ```
 
 ## Supplied question guidelines

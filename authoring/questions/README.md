@@ -1,11 +1,13 @@
-# Questions for human review
+# Human-reviewed questions
 
-The 9 November 2026 batch contains **57 new, unreviewed questions**: three for
-each of the 19 human-approved [rule briefs](../rules/README.md). These are
-shareable product drafts, not demo fixtures or approved learning content.
-Approval of an input rule does not approve any question.
+The 9 November 2026 batch contains **57 human-reviewed and approved questions**:
+three for each of the 19 human-approved [rule briefs](../rules/README.md).
+@Vedrana approved the batch on 17 November 2026 with the requested PR corrections
+applied; the [approval record](https://github.com/Vedrana/pravopisac/pull/48#issuecomment-6960900188)
+preserves that explicit instruction. These are shareable product questions, not
+demo fixtures. They have not been published in the browser app.
 
-Each linked file contains one proposed question, two options, a proposed answer,
+Each linked file contains one approved question, two options, its correct answer,
 an explanation, its question-specific brief, and full snapshots of the supplied
 [guidelines](../question-guidelines.md) and rule, including source references and
 the rule's human-approval link. The input revision is
@@ -18,7 +20,7 @@ review files; this batch did not invoke the standalone Copilot CLI generator.
 Format checks do not establish linguistic correctness, source support, or
 learner suitability.
 
-## New drafts
+## Approved batch
 
 | Approved input rule | Question 1 | Question 2 | Question 3 |
 | --- | --- | --- | --- |
@@ -44,13 +46,15 @@ learner suitability.
 
 ## Review and existing approved content
 
-Review and correct each question in its own file. Check both options, the answer
+All 40 inline review comments have been addressed in the affected question
+files. Each of the 57 files records the human approval and links to the approval
+record. The original generation inputs remain unchanged.
+
+Later content changes require fresh human review of both options, the answer
 key, the explanation, compliance with the rule and its sources, duplicates,
-learner suitability, and explanation readability. Approval must be explicit in
-a human pull request review or comment; then replace that question's unreviewed
-notice with an approval note and link. Later content changes require fresh
-review. No school-grade alignment is claimed.
+learner suitability, and explanation readability. Approval of an input rule
+alone does not approve a question. No school-grade alignment is claimed.
 
 The existing [approved personal-name question](personal-name-question-1.md)
-is unchanged and is not one of the 57 new drafts. Nothing in this batch has
+is unchanged and is not one of the 57 batch questions. Nothing in this batch has
 been imported into the browser app.
