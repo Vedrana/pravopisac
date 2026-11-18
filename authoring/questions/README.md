@@ -46,9 +46,11 @@ learner suitability.
 
 ## Review and existing approved content
 
-All 40 inline review comments have been addressed in the affected question
-files. Each of the 57 files records the human approval and links to the approval
-record. The original generation inputs remain unchanged.
+All 49 inline review comments have been addressed in the affected question
+files: the initial 40 comments and nine follow-up corrections on 18 November 2026.
+Each of the 57 files records the human approval and links to the approval
+record. The seven files changed in the follow-up also link to the human-requested
+corrections. The original generation inputs remain unchanged.
 
 Later content changes require fresh human review of both options, the answer
 key, the explanation, compliance with the rule and its sources, duplicates,

@@ -5,6 +5,8 @@ PR corrections applied. [Approval record](https://github.com/Vedrana/pravopisac/
 This records the human reviewer's explicit instruction; it is not an AI approval.
 Later content edits require fresh human review. No school-grade alignment is claimed.
 
+Further correction applied as [requested by @Vedrana on 18 November 2026](https://github.com/Vedrana/pravopisac/pull/48#discussion_r4611986622).
+
 Drafted in the GitHub Copilot app with `gpt-6.1-sol` on 9 November 2026. Format-checked and rendered with `Question` and `render_draft` from `authoring/draft_question.py`; this batch did not invoke the standalone Copilot CLI generator.
 
 Rule ID: `punctuation-exclamation-mark`. Rule file: [`punctuation-exclamation-mark.md`](../rules/punctuation-exclamation-mark.md).
@@ -15,7 +17,7 @@ Rule and guidelines input revision: `830a11ba1b5d527544baa5968f1b4ec54d38e8df`. 
 ```text
 ID: punctuation-exclamation-mark-01
 
-Koja rečenica odgovara tom uzviku?
+Kojom se rečenicom pravilno izražava uzvik?
 
 A: Pazi.
 B: Pazi!

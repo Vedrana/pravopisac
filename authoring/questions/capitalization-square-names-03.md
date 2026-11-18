@@ -5,6 +5,8 @@ PR corrections applied. [Approval record](https://github.com/Vedrana/pravopisac/
 This records the human reviewer's explicit instruction; it is not an AI approval.
 Later content edits require fresh human review. No school-grade alignment is claimed.
 
+Further correction applied as [requested by @Vedrana on 18 November 2026](https://github.com/Vedrana/pravopisac/pull/48#discussion_r4611417493).
+
 Drafted in the GitHub Copilot app with `gpt-6.1-sol` on 9 November 2026. Format-checked and rendered with `Question` and `render_draft` from `authoring/draft_question.py`; this batch did not invoke the standalone Copilot CLI generator.
 
 Rule ID: `capitalization-square-names`. Rule file: [`capitalization-square-names.md`](../rules/capitalization-square-names.md).
@@ -22,7 +24,7 @@ B: Trg malih vrtova
 
 Correct answer: B
 
-Explanation: U imenu Trg malih vrtova riječ malih nije vlastito ime pa je pišemo malim slovom.
+Explanation: U imenu Trg malih vrtova riječ malih nije vlastito ime pa je pišemo malim slovom. Isto vrijedi i za riječ vrtova.
 ```
 
 ## Supplied question guidelines

@@ -5,6 +5,8 @@ PR corrections applied. [Approval record](https://github.com/Vedrana/pravopisac/
 This records the human reviewer's explicit instruction; it is not an AI approval.
 Later content edits require fresh human review. No school-grade alignment is claimed.
 
+Further correction applied as [requested by @Vedrana on 18 November 2026](https://github.com/Vedrana/pravopisac/pull/48#discussion_r4612061152).
+
 Drafted in the GitHub Copilot app with `gpt-6.1-sol` on 9 November 2026. Format-checked and rendered with `Question` and `render_draft` from `authoring/draft_question.py`; this batch did not invoke the standalone Copilot CLI generator.
 
 Rule ID: `punctuation-simple-list-commas`. Rule file: [`punctuation-simple-list-commas.md`](../rules/punctuation-simple-list-commas.md).
@@ -22,7 +24,7 @@ B: U torbi su knjiga, lopta, lutka.
 
 Correct answer: B
 
-Explanation: Između riječi knjiga i lopta ovdje pišemo zarez jer nabrajamo stvari.
+Explanation: Između riječi koje se nižu pišemo zarez.
 ```
 
 ## Supplied question guidelines

@@ -5,6 +5,8 @@ PR corrections applied. [Approval record](https://github.com/Vedrana/pravopisac/
 This records the human reviewer's explicit instruction; it is not an AI approval.
 Later content edits require fresh human review. No school-grade alignment is claimed.
 
+Further correction applied as [requested by @Vedrana on 18 November 2026](https://github.com/Vedrana/pravopisac/pull/48#discussion_r4611939479).
+
 Drafted in the GitHub Copilot app with `gpt-6.1-sol` on 9 November 2026. Format-checked and rendered with `Question` and `render_draft` from `authoring/draft_question.py`; this batch did not invoke the standalone Copilot CLI generator.
 
 Rule ID: `punctuation-basic-spacing`. Rule file: [`punctuation-basic-spacing.md`](../rules/punctuation-basic-spacing.md).
@@ -22,7 +24,7 @@ B: Pada kiša.Ostajemo doma.
 
 Correct answer: A
 
-Explanation: Iza točke nakon riječi kiša ide jedan razmak jer u istome retku slijedi riječ Ostajemo.
+Explanation: Između točke na kraju rečenice i početka nove rečenice pišemo razmak.
 ```
 
 ## Supplied question guidelines
