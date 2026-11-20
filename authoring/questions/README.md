@@ -58,5 +58,5 @@ learner suitability, and explanation readability. Approval of an input rule
 alone does not approve a question. No school-grade alignment is claimed.
 
 The existing [approved personal-name question](personal-name-question-1.md)
-is unchanged and is not one of the 57 batch questions. Nothing in this batch has
-been imported into the browser app.
+is unchanged and is not one of the 57 batch questions. All 58 questions, including
+it, are generated into the browser app from these files.

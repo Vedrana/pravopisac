@@ -1,20 +1,33 @@
 import { useEffect, useRef, useState } from 'react'
-import { questions } from './questions'
-import type { AnswerIndex } from './questions'
+import { questions as approvedQuestions } from './questions'
+import type { AnswerIndex, Question } from './questions'
+import { shuffle } from './shuffle'
 
 type QuizSession = {
+  order: readonly Question[]
   currentIndex: number
   answers: AnswerIndex[]
 }
 
-const optionIndices = [0, 1] as const
-const questionCount = questions.length
+type AppProps = {
+  questionBank?: readonly Question[]
+  random?: () => number
+}
 
-export default function App() {
-  const [session, setSession] = useState<QuizSession>({
+const optionIndices = [0, 1] as const
+
+export default function App({
+  questionBank = approvedQuestions,
+  random = Math.random,
+}: AppProps) {
+  const newSession = (): QuizSession => ({
+    order: shuffle(questionBank, random),
     currentIndex: 0,
     answers: [],
   })
+  const [session, setSession] = useState<QuizSession>(newSession)
+  const questions = session.order
+  const questionCount = questions.length
   const titleRef = useRef<HTMLHeadingElement>(null)
   const nextButtonRef = useRef<HTMLButtonElement>(null)
   const question = questions[session.currentIndex]
@@ -53,7 +66,7 @@ export default function App() {
   }
 
   function restart() {
-    setSession({ currentIndex: 0, answers: [] })
+    setSession(newSession())
   }
 
   if (!isComplete && question === undefined) {
