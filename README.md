@@ -33,19 +33,27 @@ npm run build
 ```
 
 The GitHub Actions workflow runs the same checks on pull requests and pushes to
-`main`. It does not deploy the app.
+`main`. Deployment is separate: `.github/workflows/deploy.yml` publishes to GitHub
+Pages only for `v*` tags or a manual run.
+
+`npm run generate` (run automatically before `dev`, `build`, and `test`) reads
+`authoring/questions/` and writes the git-ignored `web/src/questions.generated.ts`.
+It fails if a question file lacks recorded human approval or does not match the
+expected format. Run it again after changing an authoring file.
 
 ## Architecture
 
-- `web/src/questions.ts`: checked-in question data and its TypeScript contract.
-  Questions carry their authoring file and human-approval link; only approved
-  questions are included.
-- `web/src/App.tsx`: React presentation and the in-memory quiz session. Feedback,
-  progress, and score are derived from the recorded answers.
+- `web/src/questions.ts`: the question TypeScript contract and the question list,
+  generated from `authoring/questions/` by `web/scripts/`. Questions carry their
+  authoring file and human-approval link; only files recording human approval
+  are included.
+- `web/src/App.tsx`: React presentation and the in-memory quiz session. Questions
+  are shuffled at the start of each session and on restart. Feedback, progress,
+  and score are derived from the recorded answers.
 - `web/src/App.test.tsx`: interaction coverage for correct/wrong answers, locked
-  choices, progression, restart, keyboard navigation, and content-status labels.
-- `web/src/questions.test.ts`: checks that the app copy matches the tracked approved
-  question, retains its approval link, and includes only approved questions.
+  choices, progression, shuffling, restart, and keyboard navigation.
+- `web/src/questions.test.ts`: checks that the app includes every tracked authoring
+  question exactly once, matches its file, and retains its approval link.
 
 React and TypeScript provide a conventional component-based foundation; Vite
 produces static files in `web/dist/`. Relative asset paths allow hosting under a
@@ -72,9 +80,9 @@ later content changes need review again.
 Format checks do not prove correctness or source support. The learner group,
 topic, reviewed rule, and permission to share the input texts must be agreed
 before real generation. Checked-in fixtures are synthetic tests, not learning content.
-There is no automated app importer or publisher. The first approved question has
-been copied unchanged into `web/src/questions.ts` with its approval link.
-Future questions require recorded human approval before a
-manual addition to the app data; later content edits need review again. The app
-still makes no runtime AI calls. See the [authoring guide](authoring/README.md) for
-setup and usage.
+There is no publisher. `npm run generate` in `web/` builds the app's question
+list from every file in `authoring/questions/`, keeping each file reference and
+human-approval link, and fails for a file without recorded approval. Adding a
+question to the app therefore means adding an approved file; later content edits
+need review again. The app still makes no runtime AI calls. See the
+[authoring guide](authoring/README.md) for setup and usage.

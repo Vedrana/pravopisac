@@ -4,11 +4,16 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "generate": "node scripts/generate-questions.ts",
+    "predev": "npm run generate",
     "dev": "vite",
+    "prebuild": "npm run generate",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
     "preview": "vite preview",
+    "pretest": "npm run generate",
     "test": "vitest run",
+    "pretest:watch": "npm run generate",
     "test:watch": "vitest"
   },
   "dependencies": {

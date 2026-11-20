@@ -1,4 +1,5 @@
 .local-tools/
+web/src/questions.generated.ts
 .authoring/
 .DS_Store
 __pycache__/
