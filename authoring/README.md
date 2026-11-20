@@ -192,6 +192,12 @@ copy its shareable content into that tracked directory first; keep private or
 temporary material local. The first live-generated example is
 [`questions/personal-name-question-1.md`](questions/personal-name-question-1.md).
 
+The [question review index](questions/README.md) lists the 9 November 2026 batch:
+three questions for each of the 19 approved rule briefs, human-reviewed and
+approved on 17 November 2026 after the requested corrections. Each question
+has its own tracked review file with an approval link and the supplied inputs
+preserved.
+
 Make requested corrections in that same tracked file. It remains unreviewed until
 a human explicitly approves the final content in a pull request review or comment.
 Then replace its unreviewed notice with an approval note and link to that approval.
