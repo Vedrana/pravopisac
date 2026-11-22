@@ -1,6 +1,7 @@
 # Dvoslovi dž, lj i nj ne rastavljaju se na kraju retka
 
-Unreviewed rule brief. Human linguistic review is required before generation.
+Reviewed and approved by a human.
+Approval recorded in [pull request #54](https://github.com/Vedrana/pravopisac/pull/54#pullrequestreview-6012690931).
 
 ## Rule
 
