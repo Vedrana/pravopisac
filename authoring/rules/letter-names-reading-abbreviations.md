@@ -1,6 +1,7 @@
 # Nazivi slova pri čitanju pokrata
 
-Unreviewed rule brief. Human linguistic review is required before generation.
+Reviewed and approved by a human.
+Approval recorded in [pull request #53](https://github.com/Vedrana/pravopisac/pull/53#pullrequestreview-6012909467).
 
 ## Rule
 
