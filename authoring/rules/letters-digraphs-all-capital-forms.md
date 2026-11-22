@@ -1,6 +1,7 @@
 # Velika tiskana slova DŽ, LJ i NJ u riječima pisanim velikim slovima
 
-Unreviewed rule brief. Human linguistic review is required before generation.
+Reviewed and approved by a human.
+Approval recorded in [pull request #52](https://github.com/Vedrana/pravopisac/pull/52#pullrequestreview-6012823387).
 
 ## Rule
 
