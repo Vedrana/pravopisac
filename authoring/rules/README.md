@@ -37,8 +37,8 @@ their own human approval. No questions or app content are added by this batch.
 
 These 13 briefs implement part of batch A1 in the
 [coverage roadmap](../orthography-coverage.md), tracked in
-[issue #16](https://github.com/Vedrana/pravopisac/issues/16). Approval is
-recorded per file; the table shows which briefs currently carry it. The intended
+[issue #16](https://github.com/Vedrana/pravopisac/issues/16). All 13 are human-approved, with approval
+recorded per file. The intended
 audience does not establish verified school-grade alignment.
 
 | Area | Briefs | Approval |
@@ -46,8 +46,7 @@ audience does not establish verified school-grade alignment.
 | Alphabet | [Letter inventory](alphabet-croatian-letter-inventory.md), [letter order](alphabet-croatian-letter-order.md), [position of q, w, x, y](alphabet-foreign-letters-order.md) | Approved in [PR #53](https://github.com/Vedrana/pravopisac/pull/53#pullrequestreview-6012909467) |
 | Letter names | [Names of the 30 Croatian letters](letter-names-croatian-alphabet.md), [reading abbreviations by letter names](letter-names-reading-abbreviations.md) | Approved in [PR #53](https://github.com/Vedrana/pravopisac/pull/53#pullrequestreview-6012909467) |
 | Digraphs dž, lj, nj | [Single letters vs. digraphs](letters-digraphs-single-letters-vs-digraphs.md), [lowercase](letters-digraphs-lowercase-forms.md), [initial capital](letters-digraphs-initial-capital-forms.md), [all capitals](letters-digraphs-all-capital-forms.md) | Approved in [PR #52](https://github.com/Vedrana/pravopisac/pull/52#pullrequestreview-6012823387) |
-| End-of-line word division | [Digraphs](word-division-digraphs.md), [ije](word-division-ije.md) | Approved in [PR #54](https://github.com/Vedrana/pravopisac/pull/54#pullrequestreview-6012690931) |
-| End-of-line word division | [One-syllable words](word-division-one-syllable-words.md), [invalid fragments](word-division-invalid-fragments.md) | **Not yet approved**: still marked unreviewed |
+| End-of-line word division | [Digraphs](word-division-digraphs.md), [ije](word-division-ije.md), [one-syllable words](word-division-one-syllable-words.md), [invalid fragments](word-division-invalid-fragments.md) | Approved in [PR #54](https://github.com/Vedrana/pravopisac/pull/54#pullrequestreview-6012690931) |
 
 Not covered: word division at morphological boundaries, and division of
 foreign words, names, abbreviations, and hyphenated words. Each brief states
