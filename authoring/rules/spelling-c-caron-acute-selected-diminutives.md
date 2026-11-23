@@ -8,7 +8,7 @@ Ovaj opis je popis odabranih poznatih umanjenica, a ne pravilo koje vrijedi
 za sve umanjenice. Svaka riječ uči se zasebno.
 
 Pišu se s č: ručica (od ruka), daščica (od daska), cjevčica (od cijev)
-i rupčić.
+i rupčić (od rubac).
 
 Pišu se s ć: gradić (od grad) i mravić (od mrav).
 
