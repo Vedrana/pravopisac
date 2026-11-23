@@ -1,11 +1,11 @@
-# Slovo č ili ć u odabranim poznatim umanjenicama
+# Slovo č ili ć u šest odabranih poznatih riječi (umanjenice)
 
 Unreviewed rule brief. Human linguistic review is required before generation.
 
 ## Rule
 
 Ovaj opis je popis odabranih poznatih umanjenica, a ne pravilo koje vrijedi
-za sve umanjenice. Svaka riječ uči se zasebno.
+za sve umanjenice. Svaka riječ uči se zasebno, kao riječ iz popisa, bez općega obrasca.
 
 Pišu se s č: ručica (od ruka), daščica (od daska), cjevčica (od cijev)
 i rupčić (od rubac).
@@ -14,7 +14,8 @@ Pišu se s ć: gradić (od grad) i mravić (od mrav).
 
 ## Scope
 
-Opis obuhvaća samo šest navedenih riječi. Ne obuhvaća druge umanjenice,
+Opis obuhvaća samo šest navedenih riječi. Obrazac tvorbe umanjenica i izbor č ili ć u njima ostaje za kasniju
+skupinu B1. Ne obuhvaća druge umanjenice,
 prezimena na -ić ni -čić, druge riječi na -ić ni opće glasovne promjene
 (skupina B1).
 
